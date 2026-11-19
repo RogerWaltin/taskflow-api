@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -22,7 +21,7 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  fetchProject(@Param('id', ParseIntPipe) id: number) {
+  fetchProject(@Param('id') id: string) {
     return this.projectsService.fetchOne(id);
   }
 
@@ -34,14 +33,14 @@ export class ProjectsController {
   @Patch(':id')
   updateProject(
     @Body() payload: Record<string, unknown>,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
   ) {
     return this.projectsService.updateProject(id, payload);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteProject(@Param('id', ParseIntPipe) id: number) {
+  deleteProject(@Param('id') id: string) {
     return this.projectsService.deleteProject(id);
   }
 }
