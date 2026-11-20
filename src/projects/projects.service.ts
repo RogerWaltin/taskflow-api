@@ -1,27 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ProjectsRepository } from './projects.repository.js';
+import type {
+  NewProject,
+  Project,
+  ProjectPatch,
+  ProjectStatus,
+} from './projects.types.js';
 
 @Injectable()
 export class ProjectsService {
-  fetchProjects(): string {
-    return 'Fetched all projects';
+  constructor(
+    @Inject(ProjectsRepository)
+    private readonly projectsRepository: ProjectsRepository,
+  ) {}
+
+  fetchProjects(
+    orgId: string,
+    filter: { status?: ProjectStatus } = {},
+  ): Promise<Project[]> {
+    return this.projectsRepository.list(orgId, filter);
   }
 
-  fetchOne(id: string): string {
-    return `Fetched Project No.${id}`;
+  fetchOne(
+    orgId: string,
+    id: string,
+  ): Promise<Project | null> {
+    return this.projectsRepository.findById(orgId, id);
   }
 
-  createProject(payload: Record<string, unknown>): Record<string, unknown> {
-    return { payload, message: 'Create project successfully' };
+  createProject(
+    orgId: string,
+    data: NewProject,
+  ): Promise<Project> {
+    return this.projectsRepository.create(orgId, data);
   }
 
   updateProject(
+    orgId: string,
     id: string,
-    payload: Record<string, unknown>,
-  ): Record<string, unknown> {
-    return { payload, message: `Updated project No.${id}` };
+    patch: ProjectPatch,
+  ): Promise<Project | null> {
+    return this.projectsRepository.update(orgId, id, patch);
   }
 
-  deleteProject(id: string): string {
-    return `Successfully deleted project No.${id}`;
+  deleteProject(
+    orgId: string,
+    id: string,
+  ): Promise<boolean> {
+    return this.projectsRepository.delete(orgId, id);
   }
 }
