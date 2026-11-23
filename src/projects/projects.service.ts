@@ -1,9 +1,12 @@
+
 import { Inject, Injectable } from '@nestjs/common';
-import { ProjectsRepository } from './projects.repository.js';
+import { ProjectsRepository } from './repositories/projects.repository.js';
+import { toProjectResponse } from './projects.mapper.js';
+
 import type {
   NewProject,
-  Project,
   ProjectPatch,
+  ProjectResponse,
   ProjectStatus,
 } from './projects.types.js';
 
@@ -14,39 +17,44 @@ export class ProjectsService {
     private readonly projectsRepository: ProjectsRepository,
   ) {}
 
-  fetchProjects(
+  async fetchProjects(
     orgId: string,
     filter: { status?: ProjectStatus } = {},
-  ): Promise<Project[]> {
-    return this.projectsRepository.list(orgId, filter);
+  ): Promise<ProjectResponse[]> {
+    const projects = await this.projectsRepository.list(orgId, filter);
+
+    return projects.map(toProjectResponse);
   }
 
-  fetchOne(
+  async fetchOne(
     orgId: string,
     id: string,
-  ): Promise<Project | null> {
-    return this.projectsRepository.findById(orgId, id);
+  ): Promise<ProjectResponse | null> {
+    const project = await this.projectsRepository.findById(orgId, id);
+
+    return project ? toProjectResponse(project) : null;
   }
 
-  createProject(
+  async createProject(
     orgId: string,
     data: NewProject,
-  ): Promise<Project> {
-    return this.projectsRepository.create(orgId, data);
+  ): Promise<ProjectResponse> {
+    const project = await this.projectsRepository.create(orgId, data);
+
+    return toProjectResponse(project);
   }
 
-  updateProject(
+  async updateProject(
     orgId: string,
     id: string,
     patch: ProjectPatch,
-  ): Promise<Project | null> {
-    return this.projectsRepository.update(orgId, id, patch);
+  ): Promise<ProjectResponse | null> {
+    const project = await this.projectsRepository.update(orgId, id, patch);
+
+    return project ? toProjectResponse(project) : null;
   }
 
-  deleteProject(
-    orgId: string,
-    id: string,
-  ): Promise<boolean> {
+  deleteProject(orgId: string, id: string): Promise<boolean> {
     return this.projectsRepository.delete(orgId, id);
   }
 }

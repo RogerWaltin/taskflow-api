@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ProjectsController } from './projects.controller.js';
 import { ProjectsService } from './projects.service.js';
-import { ProjectsRepository } from './projects.repository.js';
-import { ProjectsRepositoryStub } from './projects.repository.stub.js';
+import { ProjectsRepository } from './repositories/projects.repository.js';
+import { InMemoryProjectsRepository } from './repositories/projects.repository.memory.js';
 
 @Module({
   controllers: [ProjectsController],
@@ -10,7 +10,7 @@ import { ProjectsRepositoryStub } from './projects.repository.stub.js';
     ProjectsService,
     {
       provide: ProjectsRepository,
-      useClass: ProjectsRepositoryStub,
+      useClass: InMemoryProjectsRepository,
     },
   ],
 })

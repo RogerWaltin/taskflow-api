@@ -3,7 +3,7 @@ import type {
   Project,
   ProjectPatch,
   ProjectStatus,
-} from './projects.types.js';
+} from '../projects.types.js';
 
 export abstract class ProjectsRepository {
   abstract create(orgId: string, data: NewProject): Promise<Project>;

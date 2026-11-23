@@ -23,3 +23,8 @@ export interface NewProject {
 export type ProjectPatch = Partial<
   Pick<Project, 'name' | 'description' | 'status'>
 >;
+
+export type ProjectResponse = Pick<
+  Project,
+  'id' | 'key' | 'name' | 'description' | 'status' | 'createdAt' | 'updatedAt'
+>;
