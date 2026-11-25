@@ -1,23 +1,33 @@
+
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
-  Headers,
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
 
+import { OrgId } from '../common/decorators/org-id.decorator.js';
 import { ProjectsService } from './projects.service.js';
+
 import type {
   NewProject,
   ProjectPatch,
   ProjectStatus,
 } from './projects.types.js';
+
+const UPDATABLE_PROJECT_FIELDS = new Set<keyof ProjectPatch>([
+  'name',
+  'description',
+  'status',
+]);
 
 @Controller('projects')
 export class ProjectsController {
@@ -27,7 +37,7 @@ export class ProjectsController {
 
   @Get()
   fetchProjects(
-    @Headers('x-org-id') orgId: string,
+    @OrgId() orgId: string,
     @Query('status') status?: ProjectStatus,
   ) {
     return this.projectsService.fetchProjects(orgId, { status });
@@ -35,15 +45,16 @@ export class ProjectsController {
 
   @Get(':id')
   fetchProject(
-    @Headers('x-org-id') orgId: string,
-    @Param('id') id: string,
+    @OrgId() orgId: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' }))
+    id: string,
   ) {
     return this.projectsService.fetchOne(orgId, id);
   }
 
   @Post()
   createProject(
-    @Headers('x-org-id') orgId: string,
+    @OrgId() orgId: string,
     @Body() payload: NewProject,
   ) {
     return this.projectsService.createProject(orgId, payload);
@@ -51,18 +62,34 @@ export class ProjectsController {
 
   @Patch(':id')
   updateProject(
-    @Headers('x-org-id') orgId: string,
-    @Param('id') id: string,
+    @OrgId() orgId: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' }))
+    id: string,
     @Body() payload: ProjectPatch,
   ) {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      throw new BadRequestException('Request body must be an object');
+    }
+
+    const invalidField = Object.keys(payload).find(
+      (field) => !UPDATABLE_PROJECT_FIELDS.has(field as keyof ProjectPatch),
+    );
+
+    if (invalidField) {
+      throw new BadRequestException(
+        `${invalidField} is not an updatable project field`,
+      );
+    }
+
     return this.projectsService.updateProject(orgId, id, payload);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteProject(
-    @Headers('x-org-id') orgId: string,
-    @Param('id') id: string,
+    @OrgId() orgId: string,
+    @Param('id', new ParseUUIDPipe({ version: '4' }))
+    id: string,
   ) {
     return this.projectsService.deleteProject(orgId, id);
   }

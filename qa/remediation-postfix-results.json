@@ -1,0 +1,463 @@
+{
+  "base": "http://127.0.0.1:3302",
+  "org": "a2be6f11-7a0c-46f6-87e7-e0dfea3d3a49",
+  "otherOrg": "3db4ca58-c070-4433-97d8-341554c0ecb7",
+  "results": [
+    {
+      "id": "B01-01",
+      "scenario": "valid create",
+      "expected": 201,
+      "actual": 201,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "id": "cb8f854e-a936-4de5-9af6-1d094fc333c1",
+        "key": "BASE014BF2EF",
+        "name": "Baseline project",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:25:52.436Z",
+        "updatedAt": "2026-11-25T05:25:52.436Z"
+      }
+    },
+    {
+      "id": "B01-02",
+      "scenario": "create with empty body",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Key is required and must be a non-empty string",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-03",
+      "scenario": "create with key only",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Name is required and must be a non-empty string",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-04",
+      "scenario": "create with numeric description",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Description must be a string or null",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-05",
+      "scenario": "create with array body",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Request body must be an object",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-06",
+      "scenario": "create with read-only fields",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Unknown or read-only fields: status, owner",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B02-01",
+      "scenario": "GET existing project",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "id": "51666048-6a79-452e-a8ad-e7dab02c8f44",
+        "key": "BASE014BF2EFW",
+        "name": "Workflow project",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:25:52.463Z",
+        "updatedAt": "2026-11-25T05:25:52.463Z"
+      }
+    },
+    {
+      "id": "B02-02",
+      "scenario": "GET nonexistent project",
+      "expected": 404,
+      "actual": 404,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Project not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "B02-03",
+      "scenario": "GET foreign-org project",
+      "expected": 404,
+      "actual": 404,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Project not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "B02-04",
+      "scenario": "PATCH nonexistent project",
+      "expected": 404,
+      "actual": 404,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Project not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "B02-05",
+      "scenario": "PATCH foreign-org project",
+      "expected": 404,
+      "actual": 404,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Project not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "B01-07",
+      "scenario": "PATCH empty body",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "PATCH body cannot be empty",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-08",
+      "scenario": "PATCH key (immutable)",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "key is not an updatable project field",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-09",
+      "scenario": "PATCH internal counter",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "nextTaskNumber is not an updatable project field",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-10",
+      "scenario": "valid partial PATCH",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "id": "51666048-6a79-452e-a8ad-e7dab02c8f44",
+        "key": "BASE014BF2EFW",
+        "name": "Renamed baseline project",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:25:52.463Z",
+        "updatedAt": "2026-11-25T05:25:52.490Z"
+      }
+    },
+    {
+      "id": "B05-01",
+      "scenario": "list without filter",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": [
+        {
+          "id": "51666048-6a79-452e-a8ad-e7dab02c8f44",
+          "key": "BASE014BF2EFW",
+          "name": "Renamed baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:25:52.463Z",
+          "updatedAt": "2026-11-25T05:25:52.490Z"
+        },
+        {
+          "id": "cb8f854e-a936-4de5-9af6-1d094fc333c1",
+          "key": "BASE014BF2EF",
+          "name": "Baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:25:52.436Z",
+          "updatedAt": "2026-11-25T05:25:52.436Z"
+        }
+      ]
+    },
+    {
+      "id": "B05-02",
+      "scenario": "list status=ACTIVE",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": [
+        {
+          "id": "51666048-6a79-452e-a8ad-e7dab02c8f44",
+          "key": "BASE014BF2EFW",
+          "name": "Renamed baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:25:52.463Z",
+          "updatedAt": "2026-11-25T05:25:52.490Z"
+        },
+        {
+          "id": "cb8f854e-a936-4de5-9af6-1d094fc333c1",
+          "key": "BASE014BF2EF",
+          "name": "Baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:25:52.436Z",
+          "updatedAt": "2026-11-25T05:25:52.436Z"
+        }
+      ]
+    },
+    {
+      "id": "B05-03",
+      "scenario": "list status=ARCHIVED",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B05-04",
+      "scenario": "list status=INVALID",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Invalid project status filter",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B05-05",
+      "scenario": "list status=active",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Invalid project status filter",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B05-06",
+      "scenario": "list status= (empty)",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Invalid project status filter",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B06-01",
+      "scenario": "task list no filters",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B06-02",
+      "scenario": "task list unknown foo",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Unknown or read-only fields: foo",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B06-03",
+      "scenario": "task list foo + status",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Unknown or read-only fields: foo",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B06-04",
+      "scenario": "task list invalid status",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Invalid task status filter",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "EP-02",
+      "scenario": "task create has Location header",
+      "expected": "present",
+      "actual": "/api/v1/tasks/f3cec5e1-bcdb-46c6-86e4-a7e349181d94",
+      "result": "PASS",
+      "body": {
+        "id": "f3cec5e1-bcdb-46c6-86e4-a7e349181d94",
+        "projectId": "51666048-6a79-452e-a8ad-e7dab02c8f44",
+        "number": 1,
+        "title": "Baseline task",
+        "description": null,
+        "status": "TODO",
+        "priority": "MEDIUM",
+        "assigneeId": null,
+        "dueDate": null,
+        "createdAt": "2026-11-25T05:25:52.507Z",
+        "updatedAt": "2026-11-25T05:25:52.507Z",
+        "key": "BASE014BF2EFW-1"
+      }
+    },
+    {
+      "id": "EP-02-F",
+      "scenario": "follow Location",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "id": "f3cec5e1-bcdb-46c6-86e4-a7e349181d94",
+        "projectId": "51666048-6a79-452e-a8ad-e7dab02c8f44",
+        "number": 1,
+        "title": "Baseline task",
+        "description": null,
+        "status": "TODO",
+        "priority": "MEDIUM",
+        "assigneeId": null,
+        "dueDate": null,
+        "createdAt": "2026-11-25T05:25:52.507Z",
+        "updatedAt": "2026-11-25T05:25:52.507Z",
+        "key": "BASE014BF2EFW-1"
+      }
+    },
+    {
+      "id": "B02-06",
+      "scenario": "GET deleted project",
+      "expected": 404,
+      "actual": 404,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Project not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "B02-07",
+      "scenario": "PATCH deleted project",
+      "expected": 404,
+      "actual": 404,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Project not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { afterEach, describe, it, expect, beforeEach, vi } from 'vitest';
 import { InMemoryProjectsRepository } from './projects.repository.memory.js';
 
 describe('InMemoryProjectsRepository', () => {
@@ -10,6 +10,10 @@ describe('InMemoryProjectsRepository', () => {
 
   beforeEach(() => {
     repository = new InMemoryProjectsRepository();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   // CREATE
@@ -124,6 +128,24 @@ describe('InMemoryProjectsRepository', () => {
     expect(updated?.description).toBe('Updated description');
   });
 
+  it('updates nextTaskNumber only through an internal patch', async () => {
+    const project = await repository.create(orgA, {
+      key: 'TF',
+      name: 'TaskFlow',
+    });
+
+    const internalUpdate = await repository.update(orgA, project.id, {
+      nextTaskNumber: 50,
+    });
+    expect(internalUpdate?.nextTaskNumber).toBe(50);
+
+    const publicUpdate = await repository.update(orgA, project.id, {
+      name: 'Renamed',
+    });
+    expect(publicUpdate?.name).toBe('Renamed');
+    expect(publicUpdate?.nextTaskNumber).toBe(50);
+  });
+
   it('should preserve fields that are not included in the patch', async () => {
     const project = await repository.create(orgA, {
       key: 'TF',
@@ -162,17 +184,65 @@ describe('InMemoryProjectsRepository', () => {
     expect(result).toBeNull();
   });
 
-  it('should preserve updatedAt when nothing changes', async () => {
+  it('preserves updatedAt when a patch repeats the existing values', async () => {
+    const project = await repository.create(orgA, {
+      key: 'TF',
+      name: 'TaskFlow',
+      description: 'Original description',
+    });
+
+    const updated = await repository.update(orgA, project.id, {
+      name: 'TaskFlow',
+      description: 'Original description',
+      status: 'ACTIVE',
+    });
+
+    expect(updated?.updatedAt).toBe(project.updatedAt);
+    expect(updated).toMatchObject({
+      name: project.name,
+      description: project.description,
+      status: project.status,
+    });
+  });
+
+  it('updates updatedAt deterministically when a real field changes', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
     const project = await repository.create(orgA, {
       key: 'TF',
       name: 'TaskFlow',
     });
 
+    vi.setSystemTime(new Date('2026-01-01T00:00:05.000Z'));
     const updated = await repository.update(orgA, project.id, {
+      name: 'Renamed',
+      description: 'New description',
+      status: 'ARCHIVED',
+    });
+
+    expect(updated?.updatedAt).toBe('2026-01-01T00:00:05.000Z');
+    expect(updated).toMatchObject({
+      name: 'Renamed',
+      description: 'New description',
+      status: 'ARCHIVED',
+    });
+  });
+
+  it('updates updatedAt for an internal task-counter change', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+    const project = await repository.create(orgA, {
+      key: 'TF',
       name: 'TaskFlow',
     });
 
-    expect(updated?.updatedAt).toBe(project.updatedAt);
+    vi.setSystemTime(new Date('2026-01-01T00:00:07.000Z'));
+    const updated = await repository.update(orgA, project.id, {
+      nextTaskNumber: 2,
+    });
+
+    expect(updated?.nextTaskNumber).toBe(2);
+    expect(updated?.updatedAt).toBe('2026-01-01T00:00:07.000Z');
   });
 
   // DELETE

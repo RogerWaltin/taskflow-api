@@ -2,7 +2,7 @@
 import type {
   NewProject,
   Project,
-  ProjectPatch,
+  ProjectInternalPatch,
   ProjectStatus,
 } from '../projects.types.js';
 import { ProjectsRepository } from './projects.repository.js';
@@ -26,7 +26,7 @@ export class ProjectsRepositoryStub extends ProjectsRepository {
   async update(
     _orgId: string,
     _id: string,
-    _patch: ProjectPatch,
+    _patch: ProjectInternalPatch,
   ): Promise<Project | null> {
     return null;
   }

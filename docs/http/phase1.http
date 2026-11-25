@@ -1,0 +1,280 @@
+# TaskFlow — Phase 1 HTTP requests
+#
+# Run against a local app started with `npm run start:dev`.
+# Fill @projectId / @taskId from the create responses below.
+# All task routes use the existing /api/v1 prefix configured in src/main.ts.
+
+@base = http://127.0.0.1:3000/api/v1
+@orgA = 11111111-1111-4111-8111-111111111111
+@orgB = 22222222-2222-4222-8222-222222222222
+@projectId = <paste project id from POST /projects response>
+@taskId = <paste task id from POST /tasks response or Location header>
+
+### ---------------------------------------------------------------------------
+### Project setup
+### ---------------------------------------------------------------------------
+
+### Create a project
+POST {{base}}/projects
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "key": "HTTP01",
+  "name": "HTTP QA project",
+  "description": "Created from docs/http/phase1.http"
+}
+
+### List projects for the current organization
+GET {{base}}/projects
+X-Org-Id: {{orgA}}
+
+### Get the created project
+GET {{base}}/projects/{{projectId}}
+X-Org-Id: {{orgA}}
+
+### Rename the project (real change updates updatedAt)
+PATCH {{base}}/projects/{{projectId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "name": "HTTP QA project renamed"
+}
+
+### Repeat the same values (no updatedAt change)
+PATCH {{base}}/projects/{{projectId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "name": "HTTP QA project renamed"
+}
+
+### Invalid empty PATCH -> 400
+PATCH {{base}}/projects/{{projectId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{}
+
+### Invalid internal-field PATCH -> 400 (BUG-03 regression)
+PATCH {{base}}/projects/{{projectId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "nextTaskNumber": 99
+}
+
+### ---------------------------------------------------------------------------
+### Task creation and Location
+### ---------------------------------------------------------------------------
+
+### Create a task -> 201 + Location: /api/v1/tasks/:taskId
+POST {{base}}/projects/{{projectId}}/tasks
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "title": "First HTTP task",
+  "description": "Created with all optional fields",
+  "priority": "HIGH",
+  "assigneeId": "qa-user-a",
+  "dueDate": "2026-12-31"
+}
+
+### Follow the Location header from the create response
+GET {{base}}/tasks/{{taskId}}
+X-Org-Id: {{orgA}}
+
+### Failed creation (missing project) must not return Location -> 404
+POST {{base}}/projects/00000000-0000-4000-8000-000000000000/tasks
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "title": "Should fail"
+}
+
+### ---------------------------------------------------------------------------
+### Task listing, filtering, ordering
+### ---------------------------------------------------------------------------
+
+### List all tasks for the project (descending task number)
+GET {{base}}/projects/{{projectId}}/tasks
+X-Org-Id: {{orgA}}
+
+### Filter by status
+GET {{base}}/projects/{{projectId}}/tasks?status=TODO
+X-Org-Id: {{orgA}}
+
+### Filter by priority
+GET {{base}}/projects/{{projectId}}/tasks?priority=HIGH
+X-Org-Id: {{orgA}}
+
+### Filter by assignee
+GET {{base}}/projects/{{projectId}}/tasks?assigneeId=qa-user-a
+X-Org-Id: {{orgA}}
+
+### Multiple supported filters together
+GET {{base}}/projects/{{projectId}}/tasks?status=TODO&priority=HIGH&assigneeId=qa-user-a
+X-Org-Id: {{orgA}}
+
+### Invalid supported filter -> 400
+GET {{base}}/projects/{{projectId}}/tasks?status=BANANA
+X-Org-Id: {{orgA}}
+
+### Unsupported query key -> 400
+GET {{base}}/projects/{{projectId}}/tasks?foo=bar
+X-Org-Id: {{orgA}}
+
+### ---------------------------------------------------------------------------
+### Task updates and transitions
+### ---------------------------------------------------------------------------
+
+### Sparse PATCH: omitted fields must survive (BUG-08 regression)
+PATCH {{base}}/tasks/{{taskId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "title": "Renamed HTTP task"
+}
+
+### Explicit null clears only the supplied field
+PATCH {{base}}/tasks/{{taskId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "description": null
+}
+
+### Allowed transition TODO -> IN_PROGRESS -> 200
+PATCH {{base}}/tasks/{{taskId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "status": "IN_PROGRESS"
+}
+
+### Rejected transition IN_PROGRESS -> DONE -> 422
+PATCH {{base}}/tasks/{{taskId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "status": "DONE"
+}
+
+### Same status is a no-op -> 200, updatedAt unchanged
+PATCH {{base}}/tasks/{{taskId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "status": "IN_PROGRESS"
+}
+
+### ---------------------------------------------------------------------------
+### Tenant isolation
+### ---------------------------------------------------------------------------
+
+### Org B cannot read Org A's task -> 404
+GET {{base}}/tasks/{{taskId}}
+X-Org-Id: {{orgB}}
+
+### Org B cannot update Org A's task -> 404
+PATCH {{base}}/tasks/{{taskId}}
+Content-Type: application/json
+X-Org-Id: {{orgB}}
+
+{
+  "title": "Cross-tenant attempt"
+}
+
+### Org B cannot list Org A project tasks -> 404
+GET {{base}}/projects/{{projectId}}/tasks
+X-Org-Id: {{orgB}}
+
+### Missing or non-v4 X-Org-Id -> 400
+GET {{base}}/tasks/{{taskId}}
+
+### ---------------------------------------------------------------------------
+### Archived project restrictions
+### ---------------------------------------------------------------------------
+
+### Archive the project
+PATCH {{base}}/projects/{{projectId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "status": "ARCHIVED"
+}
+
+### Creating a task in an archived project -> 409
+POST {{base}}/projects/{{projectId}}/tasks
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "title": "Should be blocked"
+}
+
+### Updating a task in an archived project -> 409
+PATCH {{base}}/tasks/{{taskId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "title": "Should be blocked"
+}
+
+### Deleting a task in an archived project -> 409
+DELETE {{base}}/tasks/{{taskId}}
+X-Org-Id: {{orgA}}
+
+### ---------------------------------------------------------------------------
+### Deletion and cascade
+### ---------------------------------------------------------------------------
+
+### Restore project so task deletion is allowed
+PATCH {{base}}/projects/{{projectId}}
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "status": "ACTIVE"
+}
+
+### Delete a single task -> 204
+DELETE {{base}}/tasks/{{taskId}}
+X-Org-Id: {{orgA}}
+
+### Create a second task whose number must not reuse the deleted number
+POST {{base}}/projects/{{projectId}}/tasks
+Content-Type: application/json
+X-Org-Id: {{orgA}}
+
+{
+  "title": "Task after deletion"
+}
+
+### Delete the project -> 204; its remaining tasks must be removed too
+DELETE {{base}}/projects/{{projectId}}
+X-Org-Id: {{orgA}}
+
+### Cascade check: deleted project is gone -> 404
+GET {{base}}/projects/{{projectId}}
+X-Org-Id: {{orgA}}
+
+### Cascade check: listing its tasks is gone -> 404
+GET {{base}}/projects/{{projectId}}/tasks
+X-Org-Id: {{orgA}}
+
+### Repeating project deletion -> 404
+DELETE {{base}}/projects/{{projectId}}
+X-Org-Id: {{orgA}}

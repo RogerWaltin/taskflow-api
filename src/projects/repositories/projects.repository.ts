@@ -1,7 +1,7 @@
 import type {
   NewProject,
   Project,
-  ProjectPatch,
+  ProjectInternalPatch,
   ProjectStatus,
 } from '../projects.types.js';
 
@@ -18,7 +18,7 @@ export abstract class ProjectsRepository {
   abstract update(
     orgId: string,
     id: string,
-    patch: ProjectPatch,
+    patch: ProjectInternalPatch,
   ): Promise<Project | null>;
 
   abstract delete(orgId: string, id: string): Promise<boolean>;

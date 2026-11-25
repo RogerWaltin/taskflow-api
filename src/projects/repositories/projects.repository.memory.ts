@@ -4,7 +4,7 @@ import { ProjectsRepository } from './projects.repository.js';
 import type {
   NewProject,
   Project,
-  ProjectPatch,
+  ProjectInternalPatch,
   ProjectStatus,
 } from '../projects.types.js';
 
@@ -28,7 +28,6 @@ export class InMemoryProjectsRepository extends ProjectsRepository {
     };
 
     this.projects.set(project.id, project);
-
     return project;
   }
 
@@ -61,7 +60,7 @@ export class InMemoryProjectsRepository extends ProjectsRepository {
   async update(
     orgId: string,
     id: string,
-    patch: ProjectPatch,
+    patch: ProjectInternalPatch,
   ): Promise<Project | null> {
     const project = await this.findById(orgId, id);
 
@@ -69,7 +68,15 @@ export class InMemoryProjectsRepository extends ProjectsRepository {
       return null;
     }
 
-    const updatedProject = {
+    const hasChanges =
+      (patch.name !== undefined && patch.name !== project.name) ||
+      (patch.description !== undefined &&
+        patch.description !== project.description) ||
+      (patch.status !== undefined && patch.status !== project.status) ||
+      (patch.nextTaskNumber !== undefined &&
+        patch.nextTaskNumber !== project.nextTaskNumber);
+
+    const updatedProject: Project = {
       ...project,
       status: patch.status ?? project.status,
       description:
@@ -77,21 +84,12 @@ export class InMemoryProjectsRepository extends ProjectsRepository {
           ? patch.description
           : project.description,
       name: patch.name ?? project.name,
+      nextTaskNumber: patch.nextTaskNumber ?? project.nextTaskNumber,
+      updatedAt: hasChanges ? new Date().toISOString() : project.updatedAt,
     };
 
-    const hasChanged =
-      project.name !== updatedProject.name ||
-      project.status !== updatedProject.status ||
-      project.description !== updatedProject.description;
-
-    const finalProject: Project = {
-      ...updatedProject,
-      updatedAt: hasChanged ? new Date().toISOString() : project.updatedAt,
-    };
-
-    this.projects.set(id, finalProject);
-
-    return finalProject;
+    this.projects.set(id, updatedProject);
+    return updatedProject;
   }
 
   async delete(orgId: string, id: string): Promise<boolean> {
@@ -102,7 +100,6 @@ export class InMemoryProjectsRepository extends ProjectsRepository {
     }
 
     this.projects.delete(id);
-
     return true;
   }
 }

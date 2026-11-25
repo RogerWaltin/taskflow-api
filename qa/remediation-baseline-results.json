@@ -1,0 +1,495 @@
+{
+  "base": "http://127.0.0.1:3301",
+  "org": "a5c44d34-4b43-40e2-8f62-52fd54ca0675",
+  "otherOrg": "5d705aa4-fee1-41de-9a0c-32a1ed9fed3b",
+  "results": [
+    {
+      "id": "B01-01",
+      "scenario": "valid create",
+      "expected": 201,
+      "actual": 201,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "id": "766b3a0f-f855-4902-becf-f0d21531610f",
+        "key": "BASE83BFAD7F",
+        "name": "Baseline project",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.646Z",
+        "updatedAt": "2026-11-25T05:19:17.646Z"
+      }
+    },
+    {
+      "id": "B01-02",
+      "scenario": "create with empty body",
+      "expected": 400,
+      "actual": 201,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": {
+        "id": "a88879de-f821-4aa3-8db3-6a007b150df3",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.658Z",
+        "updatedAt": "2026-11-25T05:19:17.658Z"
+      }
+    },
+    {
+      "id": "B01-03",
+      "scenario": "create with key only",
+      "expected": 400,
+      "actual": 201,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": {
+        "id": "243f6327-3632-4299-801d-92de4c7df6f0",
+        "key": "BASE83BFAD7FX",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.661Z",
+        "updatedAt": "2026-11-25T05:19:17.661Z"
+      }
+    },
+    {
+      "id": "B01-04",
+      "scenario": "create with numeric description",
+      "expected": 400,
+      "actual": 201,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": {
+        "id": "82c6dbd3-ad11-412b-a7a0-366986c22c54",
+        "key": "BASE83BFAD7FD",
+        "name": "Bad description",
+        "description": 123,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.664Z",
+        "updatedAt": "2026-11-25T05:19:17.664Z"
+      }
+    },
+    {
+      "id": "B01-05",
+      "scenario": "create with array body",
+      "expected": 400,
+      "actual": 201,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": {
+        "id": "3b2d09b6-e346-40ee-801c-dc608e04723f",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.667Z",
+        "updatedAt": "2026-11-25T05:19:17.667Z"
+      }
+    },
+    {
+      "id": "B01-06",
+      "scenario": "create with read-only fields",
+      "expected": 400,
+      "actual": 201,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": {
+        "id": "0be8eb5c-1811-4d51-9324-8e1eca24c281",
+        "key": "BASE83BFAD7FR",
+        "name": "Read-only",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.670Z",
+        "updatedAt": "2026-11-25T05:19:17.670Z"
+      }
+    },
+    {
+      "id": "B02-01",
+      "scenario": "GET existing project",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "id": "85aa71a2-800b-4a8d-a9f3-096997fa5be8",
+        "key": "BASE83BFAD7FW",
+        "name": "Workflow project",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.674Z",
+        "updatedAt": "2026-11-25T05:19:17.674Z"
+      }
+    },
+    {
+      "id": "B02-02",
+      "scenario": "GET nonexistent project",
+      "expected": 404,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": null
+    },
+    {
+      "id": "B02-03",
+      "scenario": "GET foreign-org project",
+      "expected": 404,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": null
+    },
+    {
+      "id": "B02-04",
+      "scenario": "PATCH nonexistent project",
+      "expected": 404,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": null
+    },
+    {
+      "id": "B02-05",
+      "scenario": "PATCH foreign-org project",
+      "expected": 404,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": null
+    },
+    {
+      "id": "B01-07",
+      "scenario": "PATCH empty body",
+      "expected": 400,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": {
+        "id": "85aa71a2-800b-4a8d-a9f3-096997fa5be8",
+        "key": "BASE83BFAD7FW",
+        "name": "Workflow project",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.674Z",
+        "updatedAt": "2026-11-25T05:19:17.688Z"
+      }
+    },
+    {
+      "id": "B01-08",
+      "scenario": "PATCH key (immutable)",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "key is not an updatable project field",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-09",
+      "scenario": "PATCH internal counter",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "nextTaskNumber is not an updatable project field",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "B01-10",
+      "scenario": "valid partial PATCH",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "id": "85aa71a2-800b-4a8d-a9f3-096997fa5be8",
+        "key": "BASE83BFAD7FW",
+        "name": "Renamed baseline project",
+        "description": null,
+        "status": "ACTIVE",
+        "createdAt": "2026-11-25T05:19:17.674Z",
+        "updatedAt": "2026-11-25T05:19:17.698Z"
+      }
+    },
+    {
+      "id": "B05-01",
+      "scenario": "list without filter",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": [
+        {
+          "id": "85aa71a2-800b-4a8d-a9f3-096997fa5be8",
+          "key": "BASE83BFAD7FW",
+          "name": "Renamed baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.674Z",
+          "updatedAt": "2026-11-25T05:19:17.698Z"
+        },
+        {
+          "id": "0be8eb5c-1811-4d51-9324-8e1eca24c281",
+          "key": "BASE83BFAD7FR",
+          "name": "Read-only",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.670Z",
+          "updatedAt": "2026-11-25T05:19:17.670Z"
+        },
+        {
+          "id": "3b2d09b6-e346-40ee-801c-dc608e04723f",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.667Z",
+          "updatedAt": "2026-11-25T05:19:17.667Z"
+        },
+        {
+          "id": "82c6dbd3-ad11-412b-a7a0-366986c22c54",
+          "key": "BASE83BFAD7FD",
+          "name": "Bad description",
+          "description": 123,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.664Z",
+          "updatedAt": "2026-11-25T05:19:17.664Z"
+        },
+        {
+          "id": "243f6327-3632-4299-801d-92de4c7df6f0",
+          "key": "BASE83BFAD7FX",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.661Z",
+          "updatedAt": "2026-11-25T05:19:17.661Z"
+        },
+        {
+          "id": "a88879de-f821-4aa3-8db3-6a007b150df3",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.658Z",
+          "updatedAt": "2026-11-25T05:19:17.658Z"
+        },
+        {
+          "id": "766b3a0f-f855-4902-becf-f0d21531610f",
+          "key": "BASE83BFAD7F",
+          "name": "Baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.646Z",
+          "updatedAt": "2026-11-25T05:19:17.646Z"
+        }
+      ]
+    },
+    {
+      "id": "B05-02",
+      "scenario": "list status=ACTIVE",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": [
+        {
+          "id": "85aa71a2-800b-4a8d-a9f3-096997fa5be8",
+          "key": "BASE83BFAD7FW",
+          "name": "Renamed baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.674Z",
+          "updatedAt": "2026-11-25T05:19:17.698Z"
+        },
+        {
+          "id": "0be8eb5c-1811-4d51-9324-8e1eca24c281",
+          "key": "BASE83BFAD7FR",
+          "name": "Read-only",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.670Z",
+          "updatedAt": "2026-11-25T05:19:17.670Z"
+        },
+        {
+          "id": "3b2d09b6-e346-40ee-801c-dc608e04723f",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.667Z",
+          "updatedAt": "2026-11-25T05:19:17.667Z"
+        },
+        {
+          "id": "82c6dbd3-ad11-412b-a7a0-366986c22c54",
+          "key": "BASE83BFAD7FD",
+          "name": "Bad description",
+          "description": 123,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.664Z",
+          "updatedAt": "2026-11-25T05:19:17.664Z"
+        },
+        {
+          "id": "243f6327-3632-4299-801d-92de4c7df6f0",
+          "key": "BASE83BFAD7FX",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.661Z",
+          "updatedAt": "2026-11-25T05:19:17.661Z"
+        },
+        {
+          "id": "a88879de-f821-4aa3-8db3-6a007b150df3",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.658Z",
+          "updatedAt": "2026-11-25T05:19:17.658Z"
+        },
+        {
+          "id": "766b3a0f-f855-4902-becf-f0d21531610f",
+          "key": "BASE83BFAD7F",
+          "name": "Baseline project",
+          "description": null,
+          "status": "ACTIVE",
+          "createdAt": "2026-11-25T05:19:17.646Z",
+          "updatedAt": "2026-11-25T05:19:17.646Z"
+        }
+      ]
+    },
+    {
+      "id": "B05-03",
+      "scenario": "list status=ARCHIVED",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B05-04",
+      "scenario": "list status=INVALID",
+      "expected": 400,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B05-05",
+      "scenario": "list status=active",
+      "expected": 400,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B05-06",
+      "scenario": "list status= (empty)",
+      "expected": 400,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B06-01",
+      "scenario": "task list no filters",
+      "expected": 200,
+      "actual": 200,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B06-02",
+      "scenario": "task list unknown foo",
+      "expected": 400,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B06-03",
+      "scenario": "task list foo + status",
+      "expected": 400,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": []
+    },
+    {
+      "id": "B06-04",
+      "scenario": "task list invalid status",
+      "expected": 400,
+      "actual": 400,
+      "location": null,
+      "result": "PASS",
+      "note": "",
+      "body": {
+        "message": "Invalid task status filter",
+        "error": "Bad Request",
+        "statusCode": 400
+      }
+    },
+    {
+      "id": "EP-02",
+      "scenario": "task create has Location header",
+      "expected": "present",
+      "actual": "absent",
+      "result": "FAIL",
+      "body": {
+        "id": "609bf90a-2a8b-46bd-b781-d71118850275",
+        "projectId": "85aa71a2-800b-4a8d-a9f3-096997fa5be8",
+        "number": 1,
+        "title": "Baseline task",
+        "description": null,
+        "status": "TODO",
+        "priority": "MEDIUM",
+        "assigneeId": null,
+        "dueDate": null,
+        "createdAt": "2026-11-25T05:19:17.715Z",
+        "updatedAt": "2026-11-25T05:19:17.715Z",
+        "key": "BASE83BFAD7FW-1"
+      }
+    },
+    {
+      "id": "B02-06",
+      "scenario": "GET deleted project",
+      "expected": 404,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": null
+    },
+    {
+      "id": "B02-07",
+      "scenario": "PATCH deleted project",
+      "expected": 404,
+      "actual": 200,
+      "location": null,
+      "result": "FAIL",
+      "note": "",
+      "body": null
+    }
+  ]
+}
