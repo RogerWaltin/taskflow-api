@@ -2,9 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
 import { VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.setGlobalPrefix('api');
 
   app.enableVersioning({
@@ -12,6 +14,11 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
+  // Retrieve validated configuration
+  const configService = app.get(ConfigService);
+  const port = configService.getOrThrow<number>('PORT');
+
+  // Configure Swagger
   const config = new DocumentBuilder()
     .setTitle('TaskFlow API')
     .setDescription('API documentation for the TaskFlow application')
@@ -22,7 +29,11 @@ async function bootstrap() {
 
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  // Start the server ONCE
+  await app.listen(port);
 }
 
-bootstrap();
+bootstrap().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});
