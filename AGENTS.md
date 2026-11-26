@@ -164,6 +164,21 @@ At the end of each checkpoint:
 
 Then stop. Do not start the next checkpoint automatically. Give the user room to inspect the code, ask questions, and understand the implementation. Continue only when the user explicitly says to proceed.
 
+
+### Progress Tracking
+
+After every completed checkpoint:
+
+- Update `docs/PROGRESS.md` before stopping.
+- Record a checkpoint as implemented only after its code has actually been written.
+- Record it as tested only after the relevant tests have actually been run and passed.
+- Mark acceptance criteria as demonstrated only when supporting evidence exists.
+- Keep incomplete or partially completed work explicitly marked as incomplete.
+- Record known issues, failed checks, blockers, and outstanding tasks.
+- Never mark a checkpoint, lab, or phase complete based on assumptions or an implementation that has not been verified.
+- Do not remove or rewrite previously recorded progress without explaining the reason and preserving an accurate history.
+- If `docs/PROGRESS.md` does not exist, tell the user and propose creating it; do not silently claim progress was recorded.
+
 ### Stage E — Phase-wide verification and sign-off
 
 After all checkpoints are complete:
