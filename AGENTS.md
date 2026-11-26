@@ -99,3 +99,85 @@ Run checks relevant to the change. For a substantial change, prefer the full app
 - If they disagree, explain the discrepancy; do not silently assume either one is correct.
 - If a fact is not established by the repository or curriculum, say so and ask only when the missing information blocks safe progress.
 - Verify version-sensitive NestJS or library APIs against current official documentation when needed.
+
+## 9. Required phase-based learning workflow
+
+Use this workflow whenever the user starts a new curriculum phase or asks to continue to another phase. The user wants the agent to write implementation code when asked, but not to rush into implementation or complete an entire phase autonomously.
+
+### Stage A — Phase kickoff and overview (planning only)
+
+When the user says they are starting a phase (for example, "Let's start Phase 3"):
+
+1. Read `docs/PROGRESS.md` to establish the current position and prerequisites.
+2. Read the relevant phase in the authoritative curriculum PDF and its Markdown companion, if present. Read the whole relevant phase, including its fundamentals, NestJS primitives, functional requirements, architectural constraints, acceptance criteria, and viva questions.
+3. Inspect the current codebase to understand what already exists and what the phase will change.
+4. Do not edit project code during this stage.
+
+Present a clear Phase Brief covering:
+- **Why this phase exists:** the engineering problem it addresses and why the project needs it.
+- **What will be built:** the expected end-state and major deliverables.
+- **What the user will learn:** backend fundamentals, NestJS concepts, tools, patterns, and trade-offs.
+- **Requirements:** the phase's functional requirements and relevant global rules.
+- **Architectural constraints:** what must or must not be done, citing curriculum requirement IDs.
+- **Acceptance criteria:** how completion will be demonstrated.
+- **Viva preparation:** the questions and concepts the user must be able to explain.
+- **Prerequisites and dependencies:** what must already be complete and what later-phase work must be avoided.
+- **Proposed checkpoints:** a sensible sequence of cohesive feature-sized implementation chunks.
+
+Do not merely copy the curriculum. Explain it in the context of the current repository and identify what is new compared with the code that already exists. Clearly separate curriculum requirements from your own implementation suggestions.
+
+### Stage B — Collaborative conceptual planning
+
+After presenting the Phase Brief, remain in planning/discussion mode until the user explicitly asks to implement.
+
+- Discuss the design, architecture, request/data flow, alternatives, and trade-offs with the user.
+- Help the user reason through the problem before revealing a complete implementation.
+- Use progressive hints: start with a nudge or question; provide a stronger hint when asked; reveal a full design or code only when the user requests it.
+- Answer follow-up questions freely. The user may discuss the design for as long as needed.
+- Refine the checkpoint plan as the discussion develops.
+- Do not interpret discussion, questions, or conceptual agreement as permission to edit files.
+- End planning with a clear proposed checkpoint order and wait for an explicit instruction such as "Build checkpoint 1."
+
+### Stage C — Implement one checkpoint at a time
+
+When the user explicitly asks to build a checkpoint:
+
+- Switch to implementation behavior and implement only the agreed checkpoint.
+- A checkpoint should be a meaningful, cohesive feature slice, not a tiny one-method step and not an entire phase. It may include the necessary repository contract and implementation, service logic, controller/endpoints, DTOs or validation, and focused tests for that feature, when those belong together in the curriculum.
+- Choose checkpoint boundaries based on feature cohesion, dependencies, and the curriculum. For example, completing the project-related data access and project endpoints as one checkpoint, then task-related operations as another, can be appropriate.
+- Before editing, briefly state the checkpoint goal, planned scope, key files, and important design choices.
+- Write the code for the user when asked. Do not force the user to type boilerplate or perform implementation exercises merely to prove learning.
+- Do not implement later checkpoints, unrelated refactors, or future-phase requirements.
+- Do not ask for approval after every individual file or tiny operation. Work through the agreed checkpoint as a cohesive unit.
+
+### Stage D — Checkpoint review and learning pause
+
+At the end of each checkpoint:
+
+1. Run focused tests and checks relevant to that checkpoint.
+2. Summarize what changed and why.
+3. Explain the resulting architecture and how the files/components work together.
+4. Walk through important request/data flows and explain unfamiliar concepts, APIs, and design decisions.
+5. Relate the implementation to the relevant curriculum requirements and acceptance criteria.
+6. Report tests/checks actually run and their results; identify anything not verified.
+7. Point out useful questions or concepts the user should be able to explain.
+
+Then stop. Do not start the next checkpoint automatically. Give the user room to inspect the code, ask questions, and understand the implementation. Continue only when the user explicitly says to proceed.
+
+### Stage E — Phase-wide verification and sign-off
+
+After all checkpoints are complete:
+
+- Run the phase-wide acceptance checks, relevant regression tests, type-check, lint, build, and E2E tests when required by the curriculum.
+- Verify every acceptance criterion against actual evidence; do not mark criteria complete based only on implementation.
+- Prepare the user for the phase viva and help them explain the code, trade-offs, and alternatives.
+- The user, not the agent, decides when the phase is signed off.
+- Update `docs/PROGRESS.md` only with verified progress. Distinguish implemented, tested, demonstrated, and viva-passed work; never claim a phase is signed off prematurely.
+
+### Using OpenCode's Plan and Build agents
+
+- Prefer OpenCode's built-in **Plan** agent for Stage A and Stage B. It is designed for analysis and planning without modifying normal project files.
+- Use the **Build** agent for Stage C and implementation work.
+- The user can switch primary agents with Tab in the OpenCode TUI.
+- Do not insist that the user remain in Plan mode after planning; switch to Build when the user is ready for implementation.
+- The Plan agent is a tool/mode choice, not a replacement for these workflow instructions. Continue following this phase/checkpoint process in either agent.
