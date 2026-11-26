@@ -11,7 +11,7 @@ The authoritative seven-phase learning specification is:
 - `docs/TASKFLOW-CURRICULUM.md` (a navigation/working summary, when present)
 - `docs/PROGRESS.md` (the developer's current position; when present)
 
-Before proposing work that relates to curriculum scope, read the relevant curriculum section and the progress file. Do not assume the next lab or phase from chat history alone. If those files are missing, ask the user to add them or inspect the repository context; do not invent curriculum requirements.
+Before proposing work that relates to curriculum scope, read the relevant section of `docs/TASKFLOW-CURRICULUM.md` and `docs/PROGRESS.md`. Treat the PDF as a source for targeted verification, not as a file to reread wholesale. Do not assume the next lab or phase from chat history alone. If those files are missing, ask the user to add them or inspect the repository context; do not invent curriculum requirements.
 
 ## 2. Curriculum is authoritative
 
@@ -109,7 +109,7 @@ Use this workflow whenever the user starts a new curriculum phase or asks to con
 When the user says they are starting a phase (for example, "Let's start Phase 3"):
 
 1. Read `docs/PROGRESS.md` to establish the current position and prerequisites.
-2. Read the relevant phase in the authoritative curriculum PDF and its Markdown companion, if present. Read the whole relevant phase, including its fundamentals, NestJS primitives, functional requirements, architectural constraints, acceptance criteria, and viva questions.
+2. Read the relevant phase in `docs/TASKFLOW-CURRICULUM.md` first. Use this Markdown guide as the default working reference. Do not read or attach the entire PDF during a normal phase kickoff. Consult the original PDF only when the Markdown guide omits a detail, an exact requirement/acceptance criterion/viva wording must be checked, or the user specifically asks for source verification. When the PDF is needed, extract or inspect only the relevant page range(s), not the entire document.
 3. Inspect the current codebase to understand what already exists and what the phase will change.
 4. Do not edit project code during this stage.
 
@@ -186,13 +186,13 @@ A long-running phase may undergo automatic context compaction. Compaction summar
 When continuing an in-progress phase after a context compaction, a summarized/recovered conversation, or resuming the work in a fresh session:
 
 1. Before making implementation decisions or continuing a checkpoint, reread `docs/PROGRESS.md`.
-2. Reopen the relevant current-phase section(s) of `docs/TASKFLOW-CURRICULUM.md` and consult the corresponding section(s) of `docs/TASKFLOW-CURRICULUM.pdf` when exact requirements, acceptance criteria, or viva wording matters.
+2. Reopen only the relevant current-phase section(s) of `docs/TASKFLOW-CURRICULUM.md`. Do not reread the PDF automatically after compaction. Consult the PDF only if a precise source detail is missing or ambiguous in Markdown, or exact wording must be verified; then extract/inspect only the specific PDF page range(s) needed.
 3. Inspect the current checkpoint's relevant source files and tests. Do not rely solely on the conversation summary for exact code state.
 4. Re-establish the active checkpoint, its agreed scope, completed work, test results, blockers, and next action.
 5. Briefly tell the user what you recovered and ask only if an important decision or state is genuinely unclear.
 6. Resume the same checkpoint. Do not restart the phase overview, silently change the agreed plan, or advance to the next checkpoint unless the user asks.
 
-Do not reread the entire 39-page PDF after every compaction. Read the current phase and the exact source sections needed for the task. A simple conceptual question that does not depend on current project state does not require a full project resynchronization.
+Minimize source-file context costs. On ordinary work and after compaction, use `PROGRESS.md` plus the relevant Markdown curriculum section. Do not attach or reread the complete PDF for routine work or merely to refresh context. If exact PDF wording is essential, prefer page-range extraction (for example, a PDF-to-text command limited to the needed pages, if available) or another targeted method; do not install dependencies just for this. If targeted extraction is unavailable, explain the limitation and use the Markdown guide unless the user explicitly asks for exact PDF verification. A simple conceptual question that does not depend on current project state does not require a full project resynchronization.
 
 ### Stage E — Phase-wide verification and sign-off
 
