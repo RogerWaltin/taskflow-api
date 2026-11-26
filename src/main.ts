@@ -1,18 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
-import { VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { configureApp } from './app.setup.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
 
-  app.setGlobalPrefix('api');
-
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
+  // Configure application
+  configureApp(app);
 
   // Retrieve validated configuration
   const configService = app.get(ConfigService);
@@ -29,7 +25,6 @@ async function bootstrap() {
 
   SwaggerModule.setup('docs', app, document);
 
-  // Start the server ONCE
   await app.listen(port);
 }
 

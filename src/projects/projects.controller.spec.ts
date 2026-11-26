@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BadRequestException } from '@nestjs/common';
 import { ProjectsController } from './projects.controller.js';
 import { ProjectsService } from './projects.service.js';
+import { ProjectFiltersDto } from './dto/project-filters.dto.js';
+import { CreateProjectDto } from './dto/create-project.dto.js';
+import { UpdateProjectDto } from './dto/update-project.dto.js';
 
 describe('ProjectsController', () => {
   const orgId = '11111111-1111-4111-8111-111111111111';
@@ -16,12 +18,13 @@ describe('ProjectsController', () => {
 
   it('delegates listing with an optional status filter', async () => {
     service.fetchProjects.mockResolvedValue([]);
-    await expect(controller.fetchProjects(orgId, 'ACTIVE')).resolves.toEqual([]);
+    const filters = Object.assign(new ProjectFiltersDto(), { status: 'ACTIVE' as const });
+    await expect(controller.fetchProjects(orgId, filters)).resolves.toEqual([]);
     expect(service.fetchProjects).toHaveBeenCalledWith(orgId, { status: 'ACTIVE' });
   });
 
   it('delegates listing without a status filter', () => {
-    controller.fetchProjects(orgId);
+    controller.fetchProjects(orgId, new ProjectFiltersDto());
     expect(service.fetchProjects).toHaveBeenCalledWith(orgId, { status: undefined });
   });
 
@@ -32,45 +35,21 @@ describe('ProjectsController', () => {
   });
 
   it('delegates project creation with the request body', async () => {
-    const body = { key: 'TF', name: 'TaskFlow' };
+    const body = Object.assign(new CreateProjectDto(), {
+      key: 'TF',
+      name: 'TaskFlow',
+    });
     service.createProject.mockResolvedValue({ id: projectId, ...body });
     await controller.createProject(orgId, body);
     expect(service.createProject).toHaveBeenCalledWith(orgId, body);
   });
 
   it('delegates project updates with ID and patch', async () => {
-    const patch = { name: 'Renamed' };
+    const patch = Object.assign(new UpdateProjectDto(), { name: 'Renamed' });
     service.updateProject.mockResolvedValue({ id: projectId, ...patch });
     await controller.updateProject(orgId, projectId, patch);
     expect(service.updateProject).toHaveBeenCalledWith(orgId, projectId, patch);
   });
-
-  it('rejects an attempt to patch the internal nextTaskNumber', () => {
-    expect(() =>
-      controller.updateProject(orgId, projectId, {
-        nextTaskNumber: 50,
-      } as never),
-    ).toThrow(BadRequestException);
-    expect(() =>
-      controller.updateProject(orgId, projectId, {
-        nextTaskNumber: 50,
-      } as never),
-    ).toThrow('nextTaskNumber is not an updatable project field');
-    expect(service.updateProject).not.toHaveBeenCalled();
-  });
-
-  it.each([null, [1, 2], 'not-an-object'])(
-    'rejects a malformed PATCH body before delegating',
-    (body) => {
-      expect(() =>
-        controller.updateProject(orgId, projectId, body as never),
-      ).toThrow(BadRequestException);
-      expect(() =>
-        controller.updateProject(orgId, projectId, body as never),
-      ).toThrow('Request body must be an object');
-      expect(service.updateProject).not.toHaveBeenCalled();
-    },
-  );
 
   it('delegates project deletion', async () => {
     service.deleteProject.mockResolvedValue(true);

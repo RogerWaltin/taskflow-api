@@ -1,6 +1,4 @@
-
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -17,30 +15,17 @@ import {
 import { OrgId } from '../common/decorators/org-id.decorator.js';
 import { ProjectsService } from './projects.service.js';
 
-import type {
-  NewProject,
-  ProjectPatch,
-  ProjectStatus,
-} from './projects.types.js';
-
-const UPDATABLE_PROJECT_FIELDS = new Set<keyof ProjectPatch>([
-  'name',
-  'description',
-  'status',
-]);
+import { CreateProjectDto } from './dto/create-project.dto.js';
+import { ProjectFiltersDto } from './dto/project-filters.dto.js';
+import { UpdateProjectDto } from './dto/update-project.dto.js';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(
-    private readonly projectsService: ProjectsService,
-  ) {}
+  constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  fetchProjects(
-    @OrgId() orgId: string,
-    @Query('status') status?: ProjectStatus,
-  ) {
-    return this.projectsService.fetchProjects(orgId, { status });
+  fetchProjects(@OrgId() orgId: string, @Query() filters: ProjectFiltersDto) {
+    return this.projectsService.fetchProjects(orgId, filters);
   }
 
   @Get(':id')
@@ -53,10 +38,7 @@ export class ProjectsController {
   }
 
   @Post()
-  createProject(
-    @OrgId() orgId: string,
-    @Body() payload: NewProject,
-  ) {
+  createProject(@OrgId() orgId: string, @Body() payload: CreateProjectDto) {
     return this.projectsService.createProject(orgId, payload);
   }
 
@@ -65,22 +47,8 @@ export class ProjectsController {
     @OrgId() orgId: string,
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     id: string,
-    @Body() payload: ProjectPatch,
+    @Body() payload: UpdateProjectDto,
   ) {
-    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
-      throw new BadRequestException('Request body must be an object');
-    }
-
-    const invalidField = Object.keys(payload).find(
-      (field) => !UPDATABLE_PROJECT_FIELDS.has(field as keyof ProjectPatch),
-    );
-
-    if (invalidField) {
-      throw new BadRequestException(
-        `${invalidField} is not an updatable project field`,
-      );
-    }
-
     return this.projectsService.updateProject(orgId, id, payload);
   }
 

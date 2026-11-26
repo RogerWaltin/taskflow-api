@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -15,19 +14,9 @@ import type {
   Task,
   TaskFilters,
   TaskPatch,
-  TaskPriority,
   TaskResponse,
   TaskStatus,
 } from './tasks.types.js';
-
-const TASK_STATUSES: TaskStatus[] = [
-  'TODO',
-  'IN_PROGRESS',
-  'IN_REVIEW',
-  'DONE',
-];
-
-const TASK_PRIORITIES: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
 
 const ALLOWED_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
   TODO: ['IN_PROGRESS'],
@@ -49,8 +38,6 @@ export class TasksService {
     projectId: string,
     data: NewTask,
   ): Promise<TaskResponse> {
-    this.validateNewTask(data);
-
     const project = await this.projectsService.getProjectForTask(
       orgId,
       projectId,
@@ -68,9 +55,9 @@ export class TasksService {
 
     // Explicitly accept only the permitted fields.
     const taskData: NewTask = {
-      title: data.title.trim(),
+      title: data.title,
       description: data.description,
-      priority: data.priority,
+      priority: data.priority ?? 'MEDIUM',
       assigneeId: data.assigneeId,
       dueDate: data.dueDate,
     };
@@ -124,8 +111,6 @@ export class TasksService {
     projectId: string,
     filters: TaskFilters = {},
   ): Promise<TaskResponse[]> {
-    this.validateFilters(filters);
-
     const project = await this.projectsService.getProjectForTask(
       orgId,
       projectId,
@@ -145,8 +130,6 @@ export class TasksService {
     taskId: string,
     data: TaskPatch,
   ): Promise<TaskResponse> {
-    this.validatePatch(data);
-
     const task = this.tasksRepository.findById(orgId, taskId);
 
     if (!task) {
@@ -181,20 +164,25 @@ export class TasksService {
     const patch: TaskPatch = {};
 
     if (data.title !== undefined) {
-      patch.title = data.title.trim();
+      patch.title = data.title;
     }
+
     if (data.description !== undefined) {
       patch.description = data.description;
     }
+
     if (data.status !== undefined) {
       patch.status = data.status;
     }
+
     if (data.priority !== undefined) {
       patch.priority = data.priority;
     }
+
     if (data.assigneeId !== undefined) {
       patch.assigneeId = data.assigneeId;
     }
+
     if (data.dueDate !== undefined) {
       patch.dueDate = data.dueDate;
     }
@@ -253,172 +241,5 @@ export class TasksService {
       ...response,
       key: `${projectKey}-${task.number}`,
     };
-  }
-
-  private validateNewTask(data: NewTask): void {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) {
-      throw new BadRequestException('Request body must be an object');
-    }
-
-    const allowedFields = [
-      'title',
-      'description',
-      'priority',
-      'assigneeId',
-      'dueDate',
-    ];
-
-    this.rejectUnknownFields(data, allowedFields);
-
-    if (
-      typeof data.title !== 'string' ||
-      data.title.trim().length < 1 ||
-      data.title.trim().length > 200
-    ) {
-      throw new BadRequestException(
-        'Title must be a string between 1 and 200 characters',
-      );
-    }
-
-    if (
-      data.description !== undefined &&
-      data.description !== null &&
-      typeof data.description !== 'string'
-    ) {
-      throw new BadRequestException('Description must be a string or null');
-    }
-
-    if (
-      data.priority !== undefined &&
-      data.priority !== null &&
-      !TASK_PRIORITIES.includes(data.priority)
-    ) {
-      throw new BadRequestException('Invalid task priority');
-    }
-
-    if (
-      data.assigneeId !== undefined &&
-      data.assigneeId !== null &&
-      typeof data.assigneeId !== 'string'
-    ) {
-      throw new BadRequestException('Assignee ID must be a string or null');
-    }
-
-    if (
-      data.dueDate !== undefined &&
-      data.dueDate !== null &&
-      typeof data.dueDate !== 'string'
-    ) {
-      throw new BadRequestException('Due date must be a string or null');
-    }
-  }
-
-  private validatePatch(data: TaskPatch): void {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) {
-      throw new BadRequestException('Request body must be an object');
-    }
-
-    const allowedFields = [
-      'title',
-      'description',
-      'status',
-      'priority',
-      'assigneeId',
-      'dueDate',
-    ];
-
-    this.rejectUnknownFields(data, allowedFields);
-
-    if (Object.keys(data).length === 0) {
-      throw new BadRequestException('PATCH body cannot be empty');
-    }
-
-    if (
-      data.title !== undefined &&
-      (typeof data.title !== 'string' ||
-        data.title.trim().length < 1 ||
-        data.title.trim().length > 200)
-    ) {
-      throw new BadRequestException(
-        'Title must be a string between 1 and 200 characters',
-      );
-    }
-
-    if (
-      data.description !== undefined &&
-      data.description !== null &&
-      typeof data.description !== 'string'
-    ) {
-      throw new BadRequestException('Description must be a string or null');
-    }
-
-    if (data.status !== undefined && !TASK_STATUSES.includes(data.status)) {
-      throw new BadRequestException('Invalid task status');
-    }
-
-    if (
-      data.priority !== undefined &&
-      data.priority !== null &&
-      !TASK_PRIORITIES.includes(data.priority)
-    ) {
-      throw new BadRequestException('Invalid task priority');
-    }
-
-    if (
-      data.assigneeId !== undefined &&
-      data.assigneeId !== null &&
-      typeof data.assigneeId !== 'string'
-    ) {
-      throw new BadRequestException('Assignee ID must be a string or null');
-    }
-
-    if (
-      data.dueDate !== undefined &&
-      data.dueDate !== null &&
-      typeof data.dueDate !== 'string'
-    ) {
-      throw new BadRequestException('Due date must be a string or null');
-    }
-  }
-
-  private validateFilters(filters: TaskFilters): void {
-    if (!filters || typeof filters !== 'object') {
-      throw new BadRequestException('Invalid task filters');
-    }
-
-    this.rejectUnknownFields(filters, ['status', 'priority', 'assigneeId']);
-
-    if (
-      filters.status !== undefined &&
-      !TASK_STATUSES.includes(filters.status)
-    ) {
-      throw new BadRequestException('Invalid task status filter');
-    }
-
-    if (
-      filters.priority !== undefined &&
-      !TASK_PRIORITIES.includes(filters.priority)
-    ) {
-      throw new BadRequestException('Invalid task priority filter');
-    }
-
-    if (
-      filters.assigneeId !== undefined &&
-      typeof filters.assigneeId !== 'string'
-    ) {
-      throw new BadRequestException('Invalid assigneeId filter');
-    }
-  }
-
-  private rejectUnknownFields(data: object, allowedFields: string[]): void {
-    const unknownFields = Object.keys(data).filter(
-      (field) => !allowedFields.includes(field),
-    );
-
-    if (unknownFields.length > 0) {
-      throw new BadRequestException(
-        `Unknown or read-only fields: ${unknownFields.join(', ')}`,
-      );
-    }
   }
 }

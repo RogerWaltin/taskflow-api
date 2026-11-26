@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BadRequestException, ConflictException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { ConflictException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { TasksService } from './tasks.service.js';
 import { TasksRepository } from './Repositories/tasks.repository.js';
 import { ProjectsService } from '../projects/projects.service.js';
@@ -30,11 +30,11 @@ describe('TasksService', () => {
     service = new TasksService(repo as unknown as TasksRepository, projects as unknown as ProjectsService);
   });
 
-  it('creates a task, increments the project counter, trims title, and returns a public key', async () => {
+  it('creates a task, increments the project counter, and returns a public key', async () => {
     projects.getProjectForTask.mockResolvedValue(project);
     repo.create.mockReturnValue({ ...task, title: 'Build authentication' });
     projects.updateTaskNumber.mockResolvedValue({ ...project, nextTaskNumber: 2 });
-    const result = await service.createTask(orgId, projectId, { title: '  Build authentication  ', priority: 'HIGH' });
+    const result = await service.createTask(orgId, projectId, { title: 'Build authentication', priority: 'HIGH' });
     expect(repo.create).toHaveBeenCalledWith(orgId, projectId, 1, { title: 'Build authentication', description: undefined, priority: 'HIGH', assigneeId: undefined, dueDate: undefined });
     expect(projects.updateTaskNumber).toHaveBeenCalledWith(orgId, projectId, 2);
     expect(result.key).toBe('TF-1');
@@ -69,15 +69,6 @@ describe('TasksService', () => {
     repo.delete.mockReturnValue(true);
     await expect(service.createTask(orgId, projectId, { title: 'A task' })).rejects.toBeInstanceOf(NotFoundException);
     expect(repo.delete).toHaveBeenCalledWith(orgId, taskId);
-  });
-
-  it('rejects invalid task creation data', async () => {
-    await expect(service.createTask(orgId, projectId, { title: '   ' })).rejects.toBeInstanceOf(BadRequestException);
-    expect(projects.getProjectForTask).not.toHaveBeenCalled();
-  });
-
-  it('rejects unknown or server-managed task creation fields', async () => {
-    await expect(service.createTask(orgId, projectId, { title: 'A task', status: 'DONE' } as never)).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('retrieves a task with its project key', async () => {
@@ -120,27 +111,6 @@ describe('TasksService', () => {
     expect(repo.findByProject).not.toHaveBeenCalled();
   });
 
-  it('rejects invalid task filters', async () => {
-    await expect(service.getProjectTasks(orgId, projectId, { status: 'INVALID' as never })).rejects.toBeInstanceOf(BadRequestException);
-    expect(projects.getProjectForTask).not.toHaveBeenCalled();
-  });
-
-  it('rejects unsupported filter keys', async () => {
-    await expect(service.getProjectTasks(orgId, projectId, { foo: 'bar' } as never)).rejects.toBeInstanceOf(BadRequestException);
-    expect(projects.getProjectForTask).not.toHaveBeenCalled();
-  });
-
-  it('rejects unsupported filter keys mixed with a valid filter', async () => {
-    await expect(service.getProjectTasks(orgId, projectId, { status: 'TODO', foo: 'bar' } as never)).rejects.toBeInstanceOf(BadRequestException);
-    expect(projects.getProjectForTask).not.toHaveBeenCalled();
-  });
-
-  it('rejects empty status and priority filter values', async () => {
-    await expect(service.getProjectTasks(orgId, projectId, { status: '' } as never)).rejects.toBeInstanceOf(BadRequestException);
-    await expect(service.getProjectTasks(orgId, projectId, { priority: '' } as never)).rejects.toBeInstanceOf(BadRequestException);
-    expect(projects.getProjectForTask).not.toHaveBeenCalled();
-  });
-
   it('accepts multiple supported filters together', async () => {
     projects.getProjectForTask.mockResolvedValue(project);
     repo.findByProject.mockReturnValue([task]);
@@ -180,7 +150,7 @@ describe('TasksService', () => {
     repo.update.mockImplementation((_org, _id, patch) => ({ ...original, ...patch }));
 
     const result = await service.updateTask(orgId, taskId, {
-      title: '  Renamed title  ',
+      title: 'Renamed title',
     });
 
     expect(repo.update).toHaveBeenCalledWith(orgId, taskId, {
@@ -280,7 +250,7 @@ describe('TasksService', () => {
     });
 
     const renamed = await service.updateTask(orgId, taskId, {
-      title: '  Renamed title  ',
+      title: 'Renamed title',
     });
     expect(renamed).toMatchObject({
       title: 'Renamed title',
@@ -304,19 +274,6 @@ describe('TasksService', () => {
       assigneeId: 'user-1',
       dueDate: '2026-12-31',
     });
-  });
-
-  it('rejects an empty patch', async () => {
-    await expect(service.updateTask(orgId, taskId, {})).rejects.toBeInstanceOf(BadRequestException);
-    expect(repo.findById).not.toHaveBeenCalled();
-  });
-
-  it('rejects an invalid title in a patch', async () => {
-    await expect(service.updateTask(orgId, taskId, { title: '  ' })).rejects.toBeInstanceOf(BadRequestException);
-  });
-
-  it('rejects unknown or read-only patch fields', async () => {
-    await expect(service.updateTask(orgId, taskId, { number: 99 } as never)).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('throws when updating a missing task', async () => {
