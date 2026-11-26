@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { ProjectsService } from './projects.service.js';
 import { ProjectsRepository } from './repositories/projects.repository.js';
 import { TasksRepository } from '../tasks/Repositories/tasks.repository.js';
@@ -42,21 +42,6 @@ describe('ProjectsService', () => {
     expect(result).not.toHaveProperty('nextTaskNumber');
   });
 
-  it.each([
-    ['an empty body', {}],
-    ['a missing key', { name: 'TaskFlow' }],
-    ['a missing name', { key: 'TF' }],
-    ['a blank name', { key: 'TF', name: '   ' }],
-    ['a numeric description', { key: 'TF', name: 'TaskFlow', description: 123 }],
-    ['an array body', [{ key: 'TF', name: 'TaskFlow' }]],
-    ['a null body', null],
-    ['read-only fields', { key: 'TF', name: 'TaskFlow', status: 'ARCHIVED', owner: 'x' }],
-    ['the internal counter', { key: 'TF', name: 'TaskFlow', nextTaskNumber: 50 }],
-  ] as const)('rejects create with %s', async (_label, body) => {
-    await expect(service.createProject(orgId, body as never)).rejects.toBeInstanceOf(BadRequestException);
-    expect(projectsRepository.create).not.toHaveBeenCalled();
-  });
-
   it('lists projects for an organization with the supplied status filter', async () => {
     projectsRepository.list.mockResolvedValue([project]);
     expect(await service.fetchProjects(orgId, { status: 'ACTIVE' })).toHaveLength(1);
@@ -73,11 +58,6 @@ describe('ProjectsService', () => {
     projectsRepository.list.mockResolvedValue([]);
     await expect(service.fetchProjects(orgId, { status })).resolves.toEqual([]);
     expect(projectsRepository.list).toHaveBeenCalledWith(orgId, { status });
-  });
-
-  it.each(['INVALID', 'active', ''])('rejects the invalid status filter %s', async (status) => {
-    await expect(service.fetchProjects(orgId, { status: status as never })).rejects.toBeInstanceOf(BadRequestException);
-    expect(projectsRepository.list).not.toHaveBeenCalled();
   });
 
   it('retrieves one project as a public response', async () => {
@@ -110,18 +90,6 @@ describe('ProjectsService', () => {
     expect(projectsRepository.update).toHaveBeenCalledWith(orgId, projectId, { name: 'Renamed' });
     expect(result?.name).toBe('Renamed');
     expect(result).not.toHaveProperty('nextTaskNumber');
-  });
-
-  it.each([
-    ['an empty patch', {}],
-    ['an array body', [{ name: 'Renamed' }]],
-    ['a null body', null],
-    ['an invalid status', { status: 'BANANA' }],
-    ['a numeric name', { name: 123 }],
-    ['a numeric description', { description: 123 }],
-  ] as const)('rejects update with %s', async (_label, patch) => {
-    await expect(service.updateProject(orgId, projectId, patch as never)).rejects.toBeInstanceOf(BadRequestException);
-    expect(projectsRepository.update).not.toHaveBeenCalled();
   });
 
   it('throws NotFoundException when updating a missing project', async () => {

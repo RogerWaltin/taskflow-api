@@ -28,17 +28,17 @@ Do not collapse these states into a single "done" label.
 
 ## Phase and lab status
 
-| Phase / working unit | Status | Notes |
-|---|---|---|
-| Phase 1 — Architecture, modules, controllers, services, DI and REST | Implementation reported complete | The learner moved on to Phase 2 after completing Phase 1 work. Formal acceptance-criteria evidence, CI sign-off and viva result are not recorded here; do not call the phase formally signed off without checking. |
-| Phase 2 — Lab 1: fail-fast configuration | Completed (learner-reported) | The learner reported completing Phase 2 Lab 1. Re-open its acceptance criteria only if a regression or explicit review requires it. |
-| Phase 2 — Lab 2: DTOs and boundary validation | In progress | Current work concerns CreateProjectDto/CreateTaskDto integration, invalid requests being blocked before service execution, eliminating hand-written input validation, and one shared `configureApp(app)` setup. Do not mark complete until verified against the lab checklist and relevant Phase 2 acceptance criteria. |
-| Phase 2 — remaining work | Not started / to be confirmed | Determine from the learner's current lab plan and curriculum; do not assume lab numbering from the PDF. |
-| Phase 3 — PostgreSQL persistence and data modeling | Not started | ORM choice must be discussed at kickoff. The PDF specifies Prisma by default; TypeORM requires mentor approval at kickoff and equivalent migrations/schema. |
-| Phase 4 — Authentication and authorization | Not started | Depends on Phase 3 sign-off. |
-| Phase 5 — Observability and error handling | Not started | Depends on Phase 4 sign-off. |
-| Phase 6 — Caching, domain events and background jobs | Not started | Depends on Phase 5 sign-off. |
-| Phase 7 — Automated testing and production readiness | Not started | Depends on Phase 6 sign-off. Resolve the curriculum's Jest examples vs repository's current Vitest setup at kickoff. |
+| Phase / working unit                                                | Status                           | Notes                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1 — Architecture, modules, controllers, services, DI and REST | Implementation reported complete | The learner moved on to Phase 2 after completing Phase 1 work. Formal acceptance-criteria evidence, CI sign-off and viva result are not recorded here; do not call the phase formally signed off without checking.                                                                                                      |
+| Phase 2 — Lab 1: fail-fast configuration                            | Completed (learner-reported)     | The learner reported completing Phase 2 Lab 1. Re-open its acceptance criteria only if a regression or explicit review requires it.                                                                                                                                                                                     |
+| Phase 2 — Lab 2: DTOs and boundary validation                       | In progress                      | Current work concerns CreateProjectDto/CreateTaskDto integration, invalid requests being blocked before service execution, eliminating hand-written input validation, and one shared `configureApp(app)` setup. Do not mark complete until verified against the lab checklist and relevant Phase 2 acceptance criteria. |
+| Phase 2 — remaining work                                            | Not started / to be confirmed    | Determine from the learner's current lab plan and curriculum; do not assume lab numbering from the PDF.                                                                                                                                                                                                                 |
+| Phase 3 — PostgreSQL persistence and data modeling                  | Not started                      | ORM choice must be discussed at kickoff. The PDF specifies Prisma by default; TypeORM requires mentor approval at kickoff and equivalent migrations/schema.                                                                                                                                                             |
+| Phase 4 — Authentication and authorization                          | Not started                      | Depends on Phase 3 sign-off.                                                                                                                                                                                                                                                                                            |
+| Phase 5 — Observability and error handling                          | Not started                      | Depends on Phase 4 sign-off.                                                                                                                                                                                                                                                                                            |
+| Phase 6 — Caching, domain events and background jobs                | Not started                      | Depends on Phase 5 sign-off.                                                                                                                                                                                                                                                                                            |
+| Phase 7 — Automated testing and production readiness                | Not started                      | Depends on Phase 6 sign-off. Resolve the curriculum's Jest examples vs repository's current Vitest setup at kickoff.                                                                                                                                                                                                    |
 
 ## Current checkpoint detail — Phase 2 Lab 2
 
@@ -69,15 +69,15 @@ This checklist is a working record of the current task, not a claim that any unc
 
 ## Phase sign-off record
 
-| Phase | Acceptance criteria demonstrated | CI green | Viva passed | Learner sign-off |
-|---|---|---|---|---|
-| Phase 1 | Not recorded | Not recorded | Not recorded | Not recorded |
-| Phase 2 | In progress | Not recorded for phase-wide sign-off | Not recorded | Not signed off |
-| Phase 3 | Not started | — | — | — |
-| Phase 4 | Not started | — | — | — |
-| Phase 5 | Not started | — | — | — |
-| Phase 6 | Not started | — | — | — |
-| Phase 7 | Not started | — | — | — |
+| Phase   | Acceptance criteria demonstrated | CI green                             | Viva passed  | Learner sign-off |
+| ------- | -------------------------------- | ------------------------------------ | ------------ | ---------------- |
+| Phase 1 | Not recorded                     | Not recorded                         | Not recorded | Not recorded     |
+| Phase 2 | In progress                      | Not recorded for phase-wide sign-off | Not recorded | Not signed off   |
+| Phase 3 | Not started                      | —                                    | —            | —                |
+| Phase 4 | Not started                      | —                                    | —            | —                |
+| Phase 5 | Not started                      | —                                    | —            | —                |
+| Phase 6 | Not started                      | —                                    | —            | —                |
+| Phase 7 | Not started                      | —                                    | —            | —                |
 
 ## Progress log
 
@@ -87,6 +87,7 @@ This checklist is a working record of the current task, not a claim that any unc
 ## Update protocol
 
 After each implementation checkpoint:
+
 1. Record the checkpoint and its scope.
 2. Record changed files or the feature delivered where useful.
 3. Mark implementation status based on actual code changes.

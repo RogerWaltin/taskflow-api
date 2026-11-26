@@ -7,6 +7,7 @@ These instructions are specific to this repository. Follow them together with an
 TaskFlow is both a backend application and a structured learning project. The goal is not merely to make the API work: the developer must understand and be able to explain the design, implementation, trade-offs, and behavior.
 
 The authoritative seven-phase learning specification is:
+
 - `docs/TASKFLOW-CURRICULUM.pdf` (the original curriculum)
 - `docs/TASKFLOW-CURRICULUM.md` (a navigation/working summary, when present)
 - `docs/PROGRESS.md` (the developer's current position; when present)
@@ -114,6 +115,7 @@ When the user says they are starting a phase (for example, "Let's start Phase 3"
 4. Do not edit project code during this stage.
 
 Present a clear Phase Brief covering:
+
 - **Why this phase exists:** the engineering problem it addresses and why the project needs it.
 - **What will be built:** the expected end-state and major deliverables.
 - **What the user will learn:** backend fundamentals, NestJS concepts, tools, patterns, and trade-offs.
@@ -163,7 +165,6 @@ At the end of each checkpoint:
 7. Point out useful questions or concepts the user should be able to explain.
 
 Then stop. Do not start the next checkpoint automatically. Give the user room to inspect the code, ask questions, and understand the implementation. Continue only when the user explicitly says to proceed.
-
 
 ### Progress Tracking
 

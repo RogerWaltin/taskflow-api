@@ -2,7 +2,7 @@
 
 > **Purpose:** This file is a compact navigation and working summary of the authoritative curriculum. It is not a replacement for the original specification.
 >
-> **Authoritative source:** `docs/TASKFLOW-CURRICULUM.pdf` — *TaskFlow Engineering Curriculum: 7-Phase Backend Requirements Spec*, 39 pages, Library copy dated 2026-11-25.
+> **Authoritative source:** `docs/TASKFLOW-CURRICULUM.pdf` — _TaskFlow Engineering Curriculum: 7-Phase Backend Requirements Spec_, 39 pages, Library copy dated 2026-11-25.
 >
 > Read the original PDF for exact functional requirements, API contracts, schemas, edge cases, acceptance criteria, architectural constraints, viva questions, and appendices. This Markdown file helps an agent and developer find the relevant material quickly.
 
@@ -36,23 +36,23 @@ The curriculum's central objective is that the developer can explain why each pa
 
 TaskFlow is a multi-tenant project and issue-tracking API. Each organization owns users, projects, and tasks.
 
-| Entity | Purpose | Curriculum introduction |
-|---|---|---|
-| Organization | Tenant; owns all tenant data | Phase 1 as an ID, Phase 3 as a table |
-| Project | Container for tasks, with a short key such as `TF` | Phase 1 |
-| Task | Unit of work, with a per-project number such as `TF-12` | Phase 1 |
-| User | Person with one role | Phase 3 as a table, Phase 4 with login |
+| Entity       | Purpose                                                 | Curriculum introduction                |
+| ------------ | ------------------------------------------------------- | -------------------------------------- |
+| Organization | Tenant; owns all tenant data                            | Phase 1 as an ID, Phase 3 as a table   |
+| Project      | Container for tasks, with a short key such as `TF`      | Phase 1                                |
+| Task         | Unit of work, with a per-project number such as `TF-12` | Phase 1                                |
+| User         | Person with one role                                    | Phase 3 as a table, Phase 4 with login |
 
 Fixed enums: `ProjectStatus` = ACTIVE, ARCHIVED; `TaskStatus` = TODO, IN_PROGRESS, IN_REVIEW, DONE; `TaskPriority` = LOW, MEDIUM, HIGH, URGENT; `UserRole` = ADMIN, MANAGER, MEMBER.
 
 Task status transitions, enforced from Phase 1:
 
-| From | Allowed destinations |
-|---|---|
-| TODO | IN_PROGRESS |
-| IN_PROGRESS | TODO, IN_REVIEW |
-| IN_REVIEW | IN_PROGRESS, DONE |
-| DONE | IN_PROGRESS (reopen) |
+| From        | Allowed destinations |
+| ----------- | -------------------- |
+| TODO        | IN_PROGRESS          |
+| IN_PROGRESS | TODO, IN_REVIEW      |
+| IN_REVIEW   | IN_PROGRESS, DONE    |
+| DONE        | IN_PROGRESS (reopen) |
 
 Setting a task to its existing status is an allowed no-op.
 
@@ -76,15 +76,15 @@ These rules apply from Phase 1 onward and are never relaxed. See PDF section 2.3
 
 Timeboxes below are the curriculum's estimates, not deadlines.
 
-| Phase | Theme | Goal | Timebox | PDF pages |
-|---|---|---|---:|---:|
-| 1 | Modules, controllers, services, DI, REST, in-memory CRUD | Build a correct tenant-aware in-memory REST API with clean layering | 4–5 days | 4–8 |
-| 2 | Fail-fast config, boundary validation, DTOs vs entities, custom pipes | Reject invalid input at the system boundary and refuse to start with invalid configuration | 4–5 days | 8–13 |
-| 3 | PostgreSQL, modeling, indexes, pagination, N+1, transactions | Replace memory with PostgreSQL without rewriting services and preserve correctness under concurrency | 6–8 days | 13–18 |
-| 4 | Authentication, JWT rotation, RBAC, ownership, request lifecycle | Replace header-based tenant identity with verified identity and enforce authorization | 7–9 days | 18–23 |
-| 5 | Structured logging, correlation IDs, error envelope, interceptors | Make requests traceable, errors predictable, and sensitive information safe | 5–6 days | 23–28 |
-| 6 | Redis cache-aside, domain events, BullMQ jobs | Speed up an expensive read, decouple side effects, and run reliable asynchronous work | 6–8 days | 28–33 |
-| 7 | Automated tests and production readiness | Prove the system works, document it, and ship it safely | 7–9 days | 33–37 |
+| Phase | Theme                                                                 | Goal                                                                                                 |  Timebox | PDF pages |
+| ----- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------: | --------: |
+| 1     | Modules, controllers, services, DI, REST, in-memory CRUD              | Build a correct tenant-aware in-memory REST API with clean layering                                  | 4–5 days |       4–8 |
+| 2     | Fail-fast config, boundary validation, DTOs vs entities, custom pipes | Reject invalid input at the system boundary and refuse to start with invalid configuration           | 4–5 days |      8–13 |
+| 3     | PostgreSQL, modeling, indexes, pagination, N+1, transactions          | Replace memory with PostgreSQL without rewriting services and preserve correctness under concurrency | 6–8 days |     13–18 |
+| 4     | Authentication, JWT rotation, RBAC, ownership, request lifecycle      | Replace header-based tenant identity with verified identity and enforce authorization                | 7–9 days |     18–23 |
+| 5     | Structured logging, correlation IDs, error envelope, interceptors     | Make requests traceable, errors predictable, and sensitive information safe                          | 5–6 days |     23–28 |
+| 6     | Redis cache-aside, domain events, BullMQ jobs                         | Speed up an expensive read, decouple side effects, and run reliable asynchronous work                | 6–8 days |     28–33 |
+| 7     | Automated tests and production readiness                              | Prove the system works, document it, and ship it safely                                              | 7–9 days |     33–37 |
 
 ### Phase 1 — Architecture, modules, controllers, services, DI and REST
 

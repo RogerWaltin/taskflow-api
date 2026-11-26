@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TasksController } from './tasks.controller.js';
 import { TasksService } from './tasks.service.js';
+import { CreateTaskDto } from './dto/create-task.dto.js';
+import { UpdateTaskDto } from './dto/update-task.dto.js';
 
 describe('TasksController', () => {
   const orgId = '11111111-1111-4111-8111-111111111111';
@@ -17,7 +19,10 @@ describe('TasksController', () => {
   });
 
   it('delegates task creation and sets a Location header for the new task', async () => {
-    const body = { title: 'Build authentication', priority: 'HIGH' as const };
+    const body = Object.assign(new CreateTaskDto(), {
+      title: 'Build authentication',
+      priority: 'HIGH' as const,
+    });
     service.createTask.mockResolvedValue({ id: taskId });
     await controller.createTask(orgId, projectId, body, response as never);
 
@@ -31,7 +36,12 @@ describe('TasksController', () => {
   it('does not set a Location header when task creation fails', async () => {
     service.createTask.mockRejectedValue(new Error('creation failed'));
     await expect(
-      controller.createTask(orgId, projectId, { title: 'x' }, response as never),
+      controller.createTask(
+        orgId,
+        projectId,
+        Object.assign(new CreateTaskDto(), { title: 'x' }),
+        response as never,
+      ),
     ).rejects.toThrow('creation failed');
     expect(response.setHeader).not.toHaveBeenCalled();
   });
@@ -62,7 +72,9 @@ describe('TasksController', () => {
   });
 
   it('delegates task updates with the patch body', async () => {
-    const patch = { title: 'Updated title' };
+    const patch = Object.assign(new UpdateTaskDto(), {
+      title: 'Updated title',
+    });
     service.updateTask.mockResolvedValue({ id: taskId, ...patch });
     await controller.updateTask(orgId, taskId, patch);
     expect(service.updateTask).toHaveBeenCalledWith(orgId, taskId, patch);
