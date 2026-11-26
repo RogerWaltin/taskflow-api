@@ -179,6 +179,21 @@ After every completed checkpoint:
 - Do not remove or rewrite previously recorded progress without explaining the reason and preserving an accurate history.
 - If `docs/PROGRESS.md` does not exist, tell the user and propose creating it; do not silently claim progress was recorded.
 
+### Session and context recovery
+
+A long-running phase may undergo automatic context compaction. Compaction summarizes conversation history; it does not itself reread arbitrary project documents.
+
+When continuing an in-progress phase after a context compaction, a summarized/recovered conversation, or resuming the work in a fresh session:
+
+1. Before making implementation decisions or continuing a checkpoint, reread `docs/PROGRESS.md`.
+2. Reopen the relevant current-phase section(s) of `docs/TASKFLOW-CURRICULUM.md` and consult the corresponding section(s) of `docs/TASKFLOW-CURRICULUM.pdf` when exact requirements, acceptance criteria, or viva wording matters.
+3. Inspect the current checkpoint's relevant source files and tests. Do not rely solely on the conversation summary for exact code state.
+4. Re-establish the active checkpoint, its agreed scope, completed work, test results, blockers, and next action.
+5. Briefly tell the user what you recovered and ask only if an important decision or state is genuinely unclear.
+6. Resume the same checkpoint. Do not restart the phase overview, silently change the agreed plan, or advance to the next checkpoint unless the user asks.
+
+Do not reread the entire 39-page PDF after every compaction. Read the current phase and the exact source sections needed for the task. A simple conceptual question that does not depend on current project state does not require a full project resynchronization.
+
 ### Stage E — Phase-wide verification and sign-off
 
 After all checkpoints are complete:
