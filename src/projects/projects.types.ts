@@ -1,3 +1,5 @@
+import type { PaginationOptions } from '../common/pagination.js';
+
 export type ProjectStatus = 'ACTIVE' | 'ARCHIVED';
 
 export interface Project {
@@ -26,6 +28,10 @@ export type ProjectPatch = Partial<
 >;
 
 export type ProjectUpdate = ProjectPatch;
+
+export type ProjectListQuery = PaginationOptions & {
+  status?: ProjectStatus;
+};
 
 // Internal update shape used by server-side operations such as task numbering.
 export type ProjectInternalPatch = ProjectPatch &

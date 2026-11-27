@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TasksController } from './tasks.controller.js';
 import { TasksService } from './tasks.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
+import { TaskFiltersDto } from './dto/task-filters.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 
 describe('TasksController', () => {
@@ -61,8 +62,13 @@ describe('TasksController', () => {
   });
 
   it('passes an empty filter object when no filters are supplied', () => {
-    controller.getProjectTasks(orgId, projectId, {});
-    expect(service.getProjectTasks).toHaveBeenCalledWith(orgId, projectId, {});
+    const filters = new TaskFiltersDto();
+    controller.getProjectTasks(orgId, projectId, filters);
+    expect(service.getProjectTasks).toHaveBeenCalledWith(
+      orgId,
+      projectId,
+      filters,
+    );
   });
 
   it('delegates retrieval of a single task', async () => {

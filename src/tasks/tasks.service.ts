@@ -9,12 +9,15 @@ import {
 import { ProjectsService } from '../projects/projects.service.js';
 import { TasksRepository } from './Repositories/tasks.repository.js';
 import { toTaskResponse } from './tasks.mapper.js';
+import { toPaginatedResponse } from '../common/pagination.js';
 
+import type { PaginatedResponseDto } from '../common/pagination.js';
 import type { TaskResponseDto } from './dto/task-response.dto.js';
 import type {
   NewTask,
   Task,
   TaskFilters,
+  TaskListQuery,
   TaskPatch,
   TaskStatus,
 } from './tasks.types.js';
@@ -110,8 +113,8 @@ export class TasksService {
   async getProjectTasks(
     orgId: string,
     projectId: string,
-    filters: TaskFilters = {},
-  ): Promise<TaskResponseDto[]> {
+    filters: TaskFilters & Partial<Pick<TaskListQuery, 'page' | 'limit'>> = {},
+  ): Promise<PaginatedResponseDto<TaskResponseDto>> {
     const project = await this.projectsService.getProjectForTask(
       orgId,
       projectId,
@@ -121,9 +124,15 @@ export class TasksService {
       throw new NotFoundException('Project not found');
     }
 
-    const tasks = this.tasksRepository.findByProject(orgId, projectId, filters);
+    const query: TaskListQuery = {
+      ...filters,
+      page: filters.page ?? 1,
+      limit: filters.limit ?? 20,
+    };
+    const result = this.tasksRepository.findByProject(orgId, projectId, query);
+    const data = result.items.map((task) => toTaskResponse(task, project.key));
 
-    return tasks.map((task) => toTaskResponse(task, project.key));
+    return toPaginatedResponse(data, result.total, query);
   }
 
   async updateTask(

@@ -1,4 +1,5 @@
-import { IsIn, IsOptional, IsUUID } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsIn, IsInt, IsOptional, IsUUID, Min } from 'class-validator';
 
 export class TaskFiltersDto {
   @IsOptional()
@@ -12,4 +13,16 @@ export class TaskFiltersDto {
   @IsOptional()
   @IsUUID()
   assigneeId?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? Number(value) : value))
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? Number(value) : value))
+  @IsInt()
+  @Min(1)
+  limit?: number;
 }

@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { paginateItems } from '../../common/pagination.js';
 import { ProjectsRepository } from './projects.repository.js';
 import type {
   NewProject,
   Project,
   ProjectInternalPatch,
-  ProjectStatus,
+  ProjectListQuery,
 } from '../projects.types.js';
 
 @Injectable()
@@ -43,18 +44,20 @@ export class InMemoryProjectsRepository extends ProjectsRepository {
 
   async list(
     orgId: string,
-    filter: { status?: ProjectStatus },
-  ): Promise<Project[]> {
-    return [...this.projects.values()]
+    query: ProjectListQuery,
+  ) {
+    const matchingProjects = [...this.projects.values()]
       .filter(
         (project) =>
           project.organizationId === orgId &&
-          (filter.status === undefined || project.status === filter.status),
+          (query.status === undefined || project.status === query.status),
       )
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
+
+    return paginateItems(matchingProjects, query);
   }
 
   async update(

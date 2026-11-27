@@ -1,15 +1,17 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
+import { toPaginatedResponse } from '../common/pagination.js';
 import { ProjectsRepository } from './repositories/projects.repository.js';
 import { toProjectResponse } from './projects.mapper.js';
 import { TasksRepository } from '../tasks/Repositories/tasks.repository.js';
 
 import type { ProjectResponseDto } from './dto/project-response.dto.js';
+import type { PaginatedResponseDto } from '../common/pagination.js';
 import type {
   NewProject,
   Project,
+  ProjectListQuery,
   ProjectUpdate,
-  ProjectStatus,
 } from './projects.types.js';
 
 @Injectable()
@@ -23,10 +25,17 @@ export class ProjectsService {
 
   async fetchProjects(
     orgId: string,
-    filter: { status?: ProjectStatus } = {},
-  ): Promise<ProjectResponseDto[]> {
-    const projects = await this.projectsRepository.list(orgId, filter);
-    return projects.map(toProjectResponse);
+    query: Partial<ProjectListQuery> = {},
+  ): Promise<PaginatedResponseDto<ProjectResponseDto>> {
+    const pagination: ProjectListQuery = {
+      ...query,
+      page: query.page ?? 1,
+      limit: query.limit ?? 20,
+    };
+    const result = await this.projectsRepository.list(orgId, pagination);
+    const data = result.items.map(toProjectResponse);
+
+    return toPaginatedResponse(data, result.total, pagination);
   }
 
   async fetchOne(orgId: string, id: string): Promise<ProjectResponseDto> {

@@ -43,21 +43,51 @@ describe('ProjectsService', () => {
   });
 
   it('lists projects for an organization with the supplied status filter', async () => {
-    projectsRepository.list.mockResolvedValue([project]);
-    expect(await service.fetchProjects(orgId, { status: 'ACTIVE' })).toHaveLength(1);
-    expect(projectsRepository.list).toHaveBeenCalledWith(orgId, { status: 'ACTIVE' });
+    projectsRepository.list.mockResolvedValue({ items: [project], total: 1 });
+    await expect(service.fetchProjects(orgId, { status: 'ACTIVE' })).resolves.toEqual({
+      data: [
+        {
+          id: project.id,
+          key: project.key,
+          name: project.name,
+          description: project.description,
+          status: project.status,
+          createdAt: project.createdAt,
+          updatedAt: project.updatedAt,
+        },
+      ],
+      meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
+    });
+    expect(projectsRepository.list).toHaveBeenCalledWith(orgId, {
+      status: 'ACTIVE',
+      page: 1,
+      limit: 20,
+    });
   });
 
-  it('returns an empty list when no projects exist', async () => {
-    projectsRepository.list.mockResolvedValue([]);
-    expect(await service.fetchProjects(orgId)).toEqual([]);
-    expect(projectsRepository.list).toHaveBeenCalledWith(orgId, {});
+  it('returns an empty page with zero total pages when no projects exist', async () => {
+    projectsRepository.list.mockResolvedValue({ items: [], total: 0 });
+    await expect(service.fetchProjects(orgId)).resolves.toEqual({
+      data: [],
+      meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    });
+    expect(projectsRepository.list).toHaveBeenCalledWith(orgId, {
+      page: 1,
+      limit: 20,
+    });
   });
 
   it.each(['ACTIVE', 'ARCHIVED'] as const)('accepts the valid status filter %s', async (status) => {
-    projectsRepository.list.mockResolvedValue([]);
-    await expect(service.fetchProjects(orgId, { status })).resolves.toEqual([]);
-    expect(projectsRepository.list).toHaveBeenCalledWith(orgId, { status });
+    projectsRepository.list.mockResolvedValue({ items: [], total: 0 });
+    await expect(service.fetchProjects(orgId, { status })).resolves.toEqual({
+      data: [],
+      meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    });
+    expect(projectsRepository.list).toHaveBeenCalledWith(orgId, {
+      status,
+      page: 1,
+      limit: 20,
+    });
   });
 
   it('retrieves one project as a public response', async () => {

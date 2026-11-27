@@ -3,8 +3,9 @@ import type {
   NewProject,
   Project,
   ProjectInternalPatch,
-  ProjectStatus,
+  ProjectListQuery,
 } from '../projects.types.js';
+import type { PaginatedResult } from '../../common/pagination.js';
 import { ProjectsRepository } from './projects.repository.js';
 
 export class ProjectsRepositoryStub extends ProjectsRepository {
@@ -18,9 +19,9 @@ export class ProjectsRepositoryStub extends ProjectsRepository {
 
   async list(
     _orgId: string,
-    _filter: { status?: ProjectStatus },
-  ): Promise<Project[]> {
-    return [];
+    _query: ProjectListQuery,
+  ): Promise<PaginatedResult<Project>> {
+    return { items: [], total: 0 };
   }
 
   async update(

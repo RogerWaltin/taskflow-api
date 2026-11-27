@@ -65,10 +65,11 @@ describe('InMemoryProjectsRepository', () => {
     await repository.create(orgA, { key: 'TF', name: 'TaskFlow' });
     await repository.create(orgB, { key: 'CRM', name: 'CRM' });
 
-    const projects = await repository.list(orgA, {});
+    const projects = await repository.list(orgA, { page: 1, limit: 20 });
 
-    expect(projects).toHaveLength(1);
-    expect(projects[0].key).toBe('TF');
+    expect(projects.items).toHaveLength(1);
+    expect(projects.total).toBe(1);
+    expect(projects.items[0].key).toBe('TF');
   });
 
   it('should filter projects by status', async () => {
@@ -86,10 +87,13 @@ describe('InMemoryProjectsRepository', () => {
 
     const archived = await repository.list(orgA, {
       status: 'ARCHIVED',
+      page: 1,
+      limit: 20,
     });
 
-    expect(archived).toHaveLength(1);
-    expect(archived[0].key).toBe('TF');
+    expect(archived.items).toHaveLength(1);
+    expect(archived.total).toBe(1);
+    expect(archived.items[0].key).toBe('TF');
   });
 
   it('should list newest projects first', async () => {
@@ -106,11 +110,32 @@ describe('InMemoryProjectsRepository', () => {
     name: 'CRM',
   });
 
-  const projects = await repository.list(orgA, {});
+  const projects = await repository.list(orgA, { page: 1, limit: 20 });
 
-  expect(projects[0].id).toBe(second.id);
-  expect(projects[1].id).toBe(first.id);
+  expect(projects.items[0].id).toBe(second.id);
+  expect(projects.items[1].id).toBe(first.id);
 });
+
+  it('returns page slices and the total matching project count', async () => {
+    for (let index = 0; index < 57; index += 1) {
+      await repository.create(orgA, {
+        key: 'TF',
+        name: `Project ${index + 1}`,
+      });
+    }
+
+    const page1 = await repository.list(orgA, { page: 1, limit: 20 });
+    const page2 = await repository.list(orgA, { page: 2, limit: 20 });
+    const page3 = await repository.list(orgA, { page: 3, limit: 20 });
+    const page4 = await repository.list(orgA, { page: 4, limit: 20 });
+    const noResults = await repository.list(orgB, { page: 1, limit: 20 });
+
+    expect(page1).toMatchObject({ items: { length: 20 }, total: 57 });
+    expect(page2).toMatchObject({ items: { length: 20 }, total: 57 });
+    expect(page3).toMatchObject({ items: { length: 17 }, total: 57 });
+    expect(page4).toMatchObject({ items: [], total: 57 });
+    expect(noResults).toEqual({ items: [], total: 0 });
+  });
 
   // UPDATE
   it('should update project fields', async () => {

@@ -9,28 +9,58 @@ describe('ProjectsController', () => {
   const orgId = '11111111-1111-4111-8111-111111111111';
   const projectId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   let controller: ProjectsController;
-  let service: { fetchProjects: ReturnType<typeof vi.fn>; fetchOne: ReturnType<typeof vi.fn>; createProject: ReturnType<typeof vi.fn>; updateProject: ReturnType<typeof vi.fn>; deleteProject: ReturnType<typeof vi.fn> };
+  let service: {
+    fetchProjects: ReturnType<typeof vi.fn>;
+    fetchOne: ReturnType<typeof vi.fn>;
+    createProject: ReturnType<typeof vi.fn>;
+    updateProject: ReturnType<typeof vi.fn>;
+    deleteProject: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
-    service = { fetchProjects: vi.fn(), fetchOne: vi.fn(), createProject: vi.fn(), updateProject: vi.fn(), deleteProject: vi.fn() };
+    service = {
+      fetchProjects: vi.fn(),
+      fetchOne: vi.fn(),
+      createProject: vi.fn(),
+      updateProject: vi.fn(),
+      deleteProject: vi.fn(),
+    };
     controller = new ProjectsController(service as unknown as ProjectsService);
   });
 
   it('delegates listing with an optional status filter', async () => {
-    service.fetchProjects.mockResolvedValue([]);
-    const filters = Object.assign(new ProjectFiltersDto(), { status: 'ACTIVE' as const });
-    await expect(controller.fetchProjects(orgId, filters)).resolves.toEqual([]);
-    expect(service.fetchProjects).toHaveBeenCalledWith(orgId, { status: 'ACTIVE' });
+    const response = {
+      data: [],
+      meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    };
+    service.fetchProjects.mockResolvedValue(response);
+    const filters = Object.assign(new ProjectFiltersDto(), {
+      status: 'ACTIVE' as const,
+    });
+    await expect(controller.fetchProjects(orgId, filters)).resolves.toEqual(
+      response,
+    );
+    expect(service.fetchProjects).toHaveBeenCalledWith(orgId, {
+      status: 'ACTIVE',
+      page: undefined,
+      limit: undefined,
+    });
   });
 
   it('delegates listing without a status filter', () => {
-    controller.fetchProjects(orgId, new ProjectFiltersDto());
-    expect(service.fetchProjects).toHaveBeenCalledWith(orgId, { status: undefined });
+    const filters = new ProjectFiltersDto();
+    controller.fetchProjects(orgId, filters);
+    expect(service.fetchProjects).toHaveBeenCalledWith(orgId, {
+      page: undefined,
+      limit: undefined,
+    });
   });
 
   it('delegates fetching one project', async () => {
     service.fetchOne.mockResolvedValue({ id: projectId });
-    await expect(controller.fetchProject(orgId, projectId)).resolves.toEqual({ id: projectId });
+    await expect(controller.fetchProject(orgId, projectId)).resolves.toEqual({
+      id: projectId,
+    });
     expect(service.fetchOne).toHaveBeenCalledWith(orgId, projectId);
   });
 
@@ -53,7 +83,9 @@ describe('ProjectsController', () => {
 
   it('delegates project deletion', async () => {
     service.deleteProject.mockResolvedValue(true);
-    await expect(controller.deleteProject(orgId, projectId)).resolves.toBe(true);
+    await expect(controller.deleteProject(orgId, projectId)).resolves.toBe(
+      true,
+    );
     expect(service.deleteProject).toHaveBeenCalledWith(orgId, projectId);
   });
 });

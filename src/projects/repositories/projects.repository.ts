@@ -1,8 +1,9 @@
+import type { PaginatedResult } from '../../common/pagination.js';
 import type {
   NewProject,
   Project,
   ProjectInternalPatch,
-  ProjectStatus,
+  ProjectListQuery,
 } from '../projects.types.js';
 
 export abstract class ProjectsRepository {
@@ -12,8 +13,8 @@ export abstract class ProjectsRepository {
 
   abstract list(
     orgId: string,
-    filter: { status?: ProjectStatus },
-  ): Promise<Project[]>;
+    query: ProjectListQuery,
+  ): Promise<PaginatedResult<Project>>;
 
   abstract update(
     orgId: string,

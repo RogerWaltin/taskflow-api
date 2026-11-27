@@ -1,7 +1,8 @@
+import type { PaginatedResult } from '../../common/pagination.js';
 import type {
   NewTask,
   Task,
-  TaskFilters,
+  TaskListQuery,
   TaskPatch,
 } from '../tasks.types.js';
 
@@ -21,8 +22,8 @@ export abstract class TasksRepository {
   abstract findByProject(
     orgId: string,
     projectId: string,
-    filters?: TaskFilters,
-  ): Task[];
+    query: TaskListQuery,
+  ): PaginatedResult<Task>;
 
   abstract update(
     orgId: string,

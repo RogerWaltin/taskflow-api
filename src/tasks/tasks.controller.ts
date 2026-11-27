@@ -15,6 +15,8 @@ import {
 import type { Response } from 'express';
 
 import { OrgId } from '../common/decorators/org-id.decorator.js';
+import type { PaginatedResponseDto } from '../common/pagination.js';
+import { PaginationOptionsPipe } from '../common/pipes/pagination-options.pipe.js';
 import { TasksService } from './tasks.service.js';
 
 import { CreateTaskDto } from './dto/create-task.dto.js';
@@ -45,8 +47,8 @@ export class TasksController {
     @OrgId() orgId: string,
     @Param('projectId', new ParseUUIDPipe({ version: '4' }))
     projectId: string,
-    @Query() filters: TaskFiltersDto,
-  ): Promise<TaskResponseDto[]> {
+    @Query(PaginationOptionsPipe) filters: TaskFiltersDto,
+  ): Promise<PaginatedResponseDto<TaskResponseDto>> {
     return this.tasksService.getProjectTasks(orgId, projectId, filters);
   }
 

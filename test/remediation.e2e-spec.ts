@@ -266,19 +266,25 @@ describe('Phase 1 bug remediation (e2e)', () => {
       .expect(200);
 
     const all = await api().get('/api/v1/projects').set('X-Org-Id', orgA).expect(200);
-    expect(all.body).toHaveLength(2);
+    expect(all.body.data).toHaveLength(2);
+    expect(all.body.meta).toEqual({
+      page: 1,
+      limit: 20,
+      total: 2,
+      totalPages: 1,
+    });
 
     const activeList = await api()
       .get('/api/v1/projects?status=ACTIVE')
       .set('X-Org-Id', orgA)
       .expect(200);
-    expect(activeList.body.map((item: { id: string }) => item.id)).toEqual([active.id]);
+    expect(activeList.body.data.map((item: { id: string }) => item.id)).toEqual([active.id]);
 
     const archivedList = await api()
       .get('/api/v1/projects?status=ARCHIVED')
       .set('X-Org-Id', orgA)
       .expect(200);
-    expect(archivedList.body.map((item: { id: string }) => item.id)).toEqual([archived.id]);
+    expect(archivedList.body.data.map((item: { id: string }) => item.id)).toEqual([archived.id]);
 
     for (const value of ['INVALID', 'active', '']) {
       const response = await api()
@@ -307,7 +313,7 @@ describe('Phase 1 bug remediation (e2e)', () => {
       .get(`/api/v1/projects/${project.id}/tasks`)
       .set('X-Org-Id', orgA)
       .expect(200)
-      .expect(({ body }) => expect(body).toHaveLength(1));
+      .expect(({ body }) => expect(body.data).toHaveLength(1));
 
     for (const query of [
       '?status=TODO',
@@ -319,14 +325,17 @@ describe('Phase 1 bug remediation (e2e)', () => {
         .get(`/api/v1/projects/${project.id}/tasks${query}`)
         .set('X-Org-Id', orgA)
         .expect(200)
-        .expect(({ body }) => expect(body).toHaveLength(1));
+        .expect(({ body }) => expect(body.data).toHaveLength(1));
     }
 
     const noMatches = await api()
       .get(`/api/v1/projects/${project.id}/tasks?status=DONE`)
       .set('X-Org-Id', orgA)
       .expect(200);
-    expect(noMatches.body).toEqual([]);
+    expect(noMatches.body).toMatchObject({
+      data: [],
+      meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    });
 
     for (const query of [
       '?foo=bar',

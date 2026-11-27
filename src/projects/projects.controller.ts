@@ -13,6 +13,8 @@ import {
 } from '@nestjs/common';
 
 import { OrgId } from '../common/decorators/org-id.decorator.js';
+import type { PaginatedResponseDto } from '../common/pagination.js';
+import { PaginationOptionsPipe } from '../common/pipes/pagination-options.pipe.js';
 import { ProjectsService } from './projects.service.js';
 
 import { CreateProjectDto } from './dto/create-project.dto.js';
@@ -27,8 +29,8 @@ export class ProjectsController {
   @Get()
   fetchProjects(
     @OrgId() orgId: string,
-    @Query() filters: ProjectFiltersDto,
-  ): Promise<ProjectResponseDto[]> {
+    @Query(PaginationOptionsPipe) filters: ProjectFiltersDto,
+  ): Promise<PaginatedResponseDto<ProjectResponseDto>> {
     return this.projectsService.fetchProjects(orgId, filters);
   }
 

@@ -36,24 +36,74 @@ describe('InMemoryTasksRepository', () => {
     repo.create(orgA, projectA, 1, { title: 'A1' });
     repo.create(orgA, projectB, 1, { title: 'B1' });
     repo.create(orgB, projectA, 2, { title: 'Other org' });
-    expect(repo.findByProject(orgA, projectA).map((task) => task.title)).toEqual(['A1']);
+    expect(
+      repo.findByProject(orgA, projectA, { page: 1, limit: 20 }).items.map((task) => task.title),
+    ).toEqual(['A1']);
   });
 
   it('sorts project tasks by descending task number', () => {
     repo.create(orgA, projectA, 1, { title: 'One' });
     repo.create(orgA, projectA, 3, { title: 'Three' });
     repo.create(orgA, projectA, 2, { title: 'Two' });
-    expect(repo.findByProject(orgA, projectA).map((task) => task.number)).toEqual([3, 2, 1]);
+    expect(
+      repo.findByProject(orgA, projectA, { page: 1, limit: 20 }).items.map((task) => task.number),
+    ).toEqual([3, 2, 1]);
   });
 
   it('filters tasks by status, priority, and assignee', () => {
     const first = repo.create(orgA, projectA, 1, { title: 'First', priority: 'HIGH', assigneeId: 'user-1' });
     repo.update(orgA, first.id, { status: 'IN_PROGRESS' });
     repo.create(orgA, projectA, 2, { title: 'Second', priority: 'LOW', assigneeId: 'user-2' });
-    expect(repo.findByProject(orgA, projectA, { status: 'IN_PROGRESS' })).toHaveLength(1);
-    expect(repo.findByProject(orgA, projectA, { priority: 'LOW' }).map((task) => task.title)).toEqual(['Second']);
-    expect(repo.findByProject(orgA, projectA, { assigneeId: 'user-1' }).map((task) => task.title)).toEqual(['First']);
-    expect(repo.findByProject(orgA, projectA, { status: 'IN_PROGRESS', priority: 'HIGH', assigneeId: 'user-1' })).toHaveLength(1);
+    expect(
+      repo.findByProject(orgA, projectA, {
+        status: 'IN_PROGRESS',
+        page: 1,
+        limit: 20,
+      }).items,
+    ).toHaveLength(1);
+    expect(
+      repo.findByProject(orgA, projectA, { priority: 'LOW', page: 1, limit: 20 }).items.map((task) => task.title),
+    ).toEqual(['Second']);
+    expect(
+      repo.findByProject(orgA, projectA, {
+        assigneeId: 'user-1',
+        page: 1,
+        limit: 20,
+      }).items.map((task) => task.title),
+    ).toEqual(['First']);
+    expect(
+      repo.findByProject(orgA, projectA, {
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        assigneeId: 'user-1',
+        page: 1,
+        limit: 20,
+      }).items,
+    ).toHaveLength(1);
+  });
+
+  it('returns page slices and the total matching task count', () => {
+    for (let index = 1; index <= 57; index += 1) {
+      repo.create(orgA, projectA, index, { title: `Task ${index}` });
+    }
+
+    const page1 = repo.findByProject(orgA, projectA, { page: 1, limit: 20 });
+    const page2 = repo.findByProject(orgA, projectA, { page: 2, limit: 20 });
+    const page3 = repo.findByProject(orgA, projectA, { page: 3, limit: 20 });
+    const page4 = repo.findByProject(orgA, projectA, { page: 4, limit: 20 });
+    const noResults = repo.findByProject(orgB, projectA, {
+      page: 1,
+      limit: 20,
+    });
+
+    expect(page1.items).toHaveLength(20);
+    expect(page1.total).toBe(57);
+    expect(page2.items).toHaveLength(20);
+    expect(page2.total).toBe(57);
+    expect(page3.items).toHaveLength(17);
+    expect(page3.total).toBe(57);
+    expect(page4).toEqual({ items: [], total: 57 });
+    expect(noResults).toEqual({ items: [], total: 0 });
   });
 
   it('updates supplied fields and updatedAt', async () => {

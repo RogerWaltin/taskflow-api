@@ -1,3 +1,5 @@
+import type { PaginationOptions } from '../common/pagination.js';
+
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
 
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -29,3 +31,5 @@ export interface TaskFilters {
   priority?: TaskPriority;
   assigneeId?: string;
 }
+
+export type TaskListQuery = TaskFilters & PaginationOptions;

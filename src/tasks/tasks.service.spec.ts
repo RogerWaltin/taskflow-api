@@ -93,16 +93,32 @@ describe('TasksService', () => {
 
   it('lists project tasks and maps each task to a response', async () => {
     projects.getProjectForTask.mockResolvedValue(project);
-    repo.findByProject.mockReturnValue([task, { ...task, id: 'task-2', number: 2 }]);
+    repo.findByProject.mockReturnValue({
+      items: [task, { ...task, id: 'task-2', number: 2 }],
+      total: 2,
+    });
     const result = await service.getProjectTasks(orgId, projectId, { status: 'TODO' });
-    expect(repo.findByProject).toHaveBeenCalledWith(orgId, projectId, { status: 'TODO' });
-    expect(result.map((item) => item.key)).toEqual(['TF-1', 'TF-2']);
+    expect(repo.findByProject).toHaveBeenCalledWith(orgId, projectId, {
+      status: 'TODO',
+      page: 1,
+      limit: 20,
+    });
+    expect(result.data.map((item) => item.key)).toEqual(['TF-1', 'TF-2']);
+    expect(result.meta).toEqual({
+      page: 1,
+      limit: 20,
+      total: 2,
+      totalPages: 1,
+    });
   });
 
-  it('returns an empty array when the project has no tasks', async () => {
+  it('returns an empty page with zero total pages when the project has no tasks', async () => {
     projects.getProjectForTask.mockResolvedValue(project);
-    repo.findByProject.mockReturnValue([]);
-    await expect(service.getProjectTasks(orgId, projectId)).resolves.toEqual([]);
+    repo.findByProject.mockReturnValue({ items: [], total: 0 });
+    await expect(service.getProjectTasks(orgId, projectId)).resolves.toEqual({
+      data: [],
+      meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+    });
   });
 
   it('throws when listing tasks for a missing project', async () => {
@@ -113,10 +129,17 @@ describe('TasksService', () => {
 
   it('accepts multiple supported filters together', async () => {
     projects.getProjectForTask.mockResolvedValue(project);
-    repo.findByProject.mockReturnValue([task]);
+    repo.findByProject.mockReturnValue({ items: [task], total: 1 });
     const filters = { status: 'TODO', priority: 'HIGH', assigneeId: 'user-1' } as const;
-    await expect(service.getProjectTasks(orgId, projectId, filters)).resolves.toHaveLength(1);
-    expect(repo.findByProject).toHaveBeenCalledWith(orgId, projectId, filters);
+    await expect(service.getProjectTasks(orgId, projectId, filters)).resolves.toMatchObject({
+      data: [{ id: task.id }],
+      meta: { page: 1, limit: 20, total: 1, totalPages: 1 },
+    });
+    expect(repo.findByProject).toHaveBeenCalledWith(orgId, projectId, {
+      ...filters,
+      page: 1,
+      limit: 20,
+    });
   });
 
   it('updates task fields', async () => {

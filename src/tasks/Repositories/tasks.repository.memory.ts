@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { paginateItems } from '../../common/pagination.js';
 import { TasksRepository } from './tasks.repository.js';
 
-import type { NewTask, Task, TaskFilters, TaskPatch } from '../tasks.types.js';
+import type {
+  NewTask,
+  Task,
+  TaskListQuery,
+  TaskPatch,
+} from '../tasks.types.js';
 
 @Injectable()
 export class InMemoryTasksRepository extends TasksRepository {
@@ -49,26 +55,28 @@ export class InMemoryTasksRepository extends TasksRepository {
   findByProject(
     orgId: string,
     projectId: string,
-    filters: TaskFilters = {},
-  ): Task[] {
-    return [...this.tasks.values()]
+    query: TaskListQuery,
+  ) {
+    const matchingTasks = [...this.tasks.values()]
       .filter(
         (task) => task.organizationId === orgId && task.projectId === projectId,
       )
       .filter(
         (task) =>
-          filters.status === undefined || task.status === filters.status,
+          query.status === undefined || task.status === query.status,
       )
       .filter(
         (task) =>
-          filters.priority === undefined || task.priority === filters.priority,
+          query.priority === undefined || task.priority === query.priority,
       )
       .filter(
         (task) =>
-          filters.assigneeId === undefined ||
-          task.assigneeId === filters.assigneeId,
+          query.assigneeId === undefined ||
+          task.assigneeId === query.assigneeId,
       )
       .sort((a, b) => b.number - a.number);
+
+    return paginateItems(matchingTasks, query);
   }
 
   update(orgId: string, taskId: string, data: TaskPatch): Task | null {
