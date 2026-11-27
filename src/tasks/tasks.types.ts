@@ -27,9 +27,13 @@ export type TaskPatch = Partial<NewTask> & {
 };
 
 export interface TaskFilters {
-  status?: TaskStatus;
-  priority?: TaskPriority;
+  status?: readonly TaskStatus[];
+  priority?: readonly TaskPriority[];
   assigneeId?: string;
+  unassigned?: boolean;
 }
 
-export type TaskListQuery = TaskFilters & PaginationOptions;
+export type TaskListQuery = TaskFilters &
+  PaginationOptions & {
+    sort?: 'number' | 'priority' | 'dueDate' | 'createdAt' | '-number';
+  };

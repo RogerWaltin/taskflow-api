@@ -1,6 +1,10 @@
 import { Transform } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, Min } from 'class-validator';
 
+const PROJECT_SORT_FIELDS = ['name', 'key', 'createdAt', '-createdAt'] as const;
+
+export type ProjectSort = (typeof PROJECT_SORT_FIELDS)[number];
+
 export class ProjectFiltersDto {
   @IsOptional()
   @IsIn(['ACTIVE', 'ARCHIVED'])
@@ -17,4 +21,7 @@ export class ProjectFiltersDto {
   @IsInt()
   @Min(1)
   limit?: number;
+
+  @IsIn(PROJECT_SORT_FIELDS)
+  sort: ProjectSort = '-createdAt';
 }

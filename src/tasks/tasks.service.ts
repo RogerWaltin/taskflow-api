@@ -113,7 +113,8 @@ export class TasksService {
   async getProjectTasks(
     orgId: string,
     projectId: string,
-    filters: TaskFilters & Partial<Pick<TaskListQuery, 'page' | 'limit'>> = {},
+    filters: TaskFilters &
+      Partial<Pick<TaskListQuery, 'page' | 'limit' | 'sort'>> = {},
   ): Promise<PaginatedResponseDto<TaskResponseDto>> {
     const project = await this.projectsService.getProjectForTask(
       orgId,
@@ -128,6 +129,7 @@ export class TasksService {
       ...filters,
       page: filters.page ?? 1,
       limit: filters.limit ?? 20,
+      sort: filters.sort ?? '-number',
     };
     const result = this.tasksRepository.findByProject(orgId, projectId, query);
     const data = result.items.map((task) => toTaskResponse(task, project.key));

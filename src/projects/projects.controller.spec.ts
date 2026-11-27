@@ -44,6 +44,7 @@ describe('ProjectsController', () => {
       status: 'ACTIVE',
       page: undefined,
       limit: undefined,
+      sort: '-createdAt',
     });
   });
 
@@ -53,6 +54,8 @@ describe('ProjectsController', () => {
     expect(service.fetchProjects).toHaveBeenCalledWith(orgId, {
       page: undefined,
       limit: undefined,
+      sort: '-createdAt',
+      status: undefined,
     });
   });
 

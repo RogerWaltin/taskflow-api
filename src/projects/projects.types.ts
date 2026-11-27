@@ -31,6 +31,7 @@ export type ProjectUpdate = ProjectPatch;
 
 export type ProjectListQuery = PaginationOptions & {
   status?: ProjectStatus;
+  sort?: 'name' | 'key' | 'createdAt' | '-createdAt';
 };
 
 // Internal update shape used by server-side operations such as task numbering.

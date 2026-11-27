@@ -9,10 +9,10 @@ Last reviewed: 2026-11-27
 ## Current position
 
 - **Current phase:** Phase 2 — Fail-Fast Config, Boundary Validation, DTOs vs Entities, Custom Pipes.
-- **Current working unit:** Phase 2 Lab 3 — Update DTOs & Response DTOs.
-- **Current status:** Lab 3 Parts 1–5 implemented and tested; Phase 2 remains in progress.
-- **Current focus:** Confirm the pagination audit fixes and review Lab 3 acceptance criteria. Phase-wide evidence, CI/sign-off, and viva remain separate.
-- **Next action:** Review the corrected configured pagination default/maximum behavior with the learner.
+- **Current working unit:** Phase 2 Lab 4 — Query Validation.
+- **Current status:** Lab 4 Parts 1–2 implemented and manually exercised; Parts 3–4 remain. Phase 2 remains in progress.
+- **Current focus:** Allow-listed query fields and actual sorting (Part 3), then HTTP examples and verification (Part 4).
+- **Next action:** Review the Part 1–2 query DTO and filtering behavior before proceeding to Part 3.
 
 ## Status definitions
 
@@ -34,6 +34,7 @@ Do not collapse these states into a single "done" label.
 | Phase 2 — Lab 1: fail-fast configuration                            | Completed (learner-reported)     | The learner reported completing Phase 2 Lab 1. Re-open its acceptance criteria only if a regression or explicit review requires it.                                                                                                            |
 | Phase 2 — Lab 2: DTOs and boundary validation                       | Completed (learner-reported)     | On 2026-11-26, the learner reported finishing Lab 2. The scope is recorded below. Exact test/check commands and criterion-by-criterion demonstration evidence were not supplied in this progress update; this does not imply Phase 2 sign-off. |
 | Phase 2 — Lab 3: update and response DTOs                           | Implemented and tested           | Parts 1–5 implemented and tested: update/response DTOs, explicit mappers, paginated list responses, and updated HTTP examples. Formal Lab 3 acceptance review and Phase 2 sign-off remain.                                                     |
+| Phase 2 — Lab 4: query validation                                   | In progress                      | Parts 1–2 implemented and manually exercised. Sorting behavior and multi-field allow-list work (Part 3), HTTP examples, and Lab 4 completion evidence (Part 4) remain.                                                                         |
 | Phase 3 — PostgreSQL persistence and data modeling                  | Not started                      | ORM choice must be discussed at kickoff. The PDF specifies Prisma by default; TypeORM requires mentor approval at kickoff and equivalent migrations/schema.                                                                                    |
 | Phase 4 — Authentication and authorization                          | Not started                      | Depends on Phase 3 sign-off.                                                                                                                                                                                                                   |
 | Phase 5 — Observability and error handling                          | Not started                      | Depends on Phase 4 sign-off.                                                                                                                                                                                                                   |
@@ -104,6 +105,23 @@ Parts 4–5 (2026-11-27): added validated pagination query parameters and standa
 
 Pagination audit correction (2026-11-27): project and task list queries now use configured `DEFAULT_PAGE_SIZE` and reject values above `MAX_PAGE_SIZE`. DTO defaults are intentionally left unset so configuration is applied at the request boundary. Stale historical Part 3 wording corrected. Verified with focused unit tests (37 passed), focused pagination E2E tests (2 passed), `npm run type-check`, `npm run lint`, and `npm run build`. Prettier formatting was applied to the new pipe and this progress file.
 
+## Current checkpoint — Phase 2 Lab 4 Parts 1–2
+
+### Implemented
+
+- Extended the existing project list DTO with the `name`, `key`, and `createdAt` sort-field allow-list and the `-createdAt` default. Project pagination/default/max validation remains in place.
+- Extended the task list DTO with comma-separated status and priority validation, UUID validation for `assigneeId`, strict boolean conversion/validation for `unassigned`, and rejection of `unassigned=true` combined with `assigneeId`.
+- Added task repository filtering for multiple statuses/priorities and assigned/unassigned state while retaining organization and project scoping.
+- Added the specified task sort-field allow-list and `-number` default. Actual user-selected ordering and multi-field parsing are intentionally deferred to Part 3.
+
+### Verification
+
+- Manual HTTP checks passed for multi-status/priority filters, assignee and unassigned filters, invalid project page/limit/sort, invalid task boolean/UUID/enum, and conflicting task filters.
+- `npm test`: passed (162 tests across 16 files).
+- `npm run test:e2e`: passed (12 tests across 4 files).
+- `npm run type-check`, `npm run lint`, `npm run build`, and focused Prettier check: passed.
+- Automated acceptance-specific coverage and HTTP examples are not yet recorded; the learner plans to address the complete testing work later. Actual sorting is not implemented in this checkpoint.
+
 ## Phase sign-off record
 
 | Phase   | Acceptance criteria demonstrated | CI green                             | Viva passed  | Learner sign-off |
@@ -125,6 +143,7 @@ Pagination audit correction (2026-11-27): project and task list queries now use 
 - **2026-11-27:** Addressed the Lab 3 Parts 1–2 audit findings: null rejection for non-nullable update fields, consistent `URGENT` task priority validation, and E2E setup through `configureApp(app)`. Updated DTO and HTTP tests pass.
 - **2026-11-27:** Implemented and verified Lab 3 Part 3: explicit project/task response DTOs, allow-list mappers, and typed service/controller response contracts.
 - **2026-11-27:** Implemented and verified Lab 3 Parts 4–5: paginated project/task lists, pagination validation and metadata, E2E boundary scenarios, and updated HTTP examples.
+- **2026-11-27:** Implemented and manually exercised Lab 4 Parts 1–2: project/task query DTO validation, CSV task filters, assignee/unassigned filters, and query conflicts. Lab 4 Parts 3–4 remain.
 
 ## Update protocol
 

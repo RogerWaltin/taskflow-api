@@ -52,27 +52,31 @@ export class InMemoryTasksRepository extends TasksRepository {
     return task;
   }
 
-  findByProject(
-    orgId: string,
-    projectId: string,
-    query: TaskListQuery,
-  ) {
+  findByProject(orgId: string, projectId: string, query: TaskListQuery) {
     const matchingTasks = [...this.tasks.values()]
       .filter(
         (task) => task.organizationId === orgId && task.projectId === projectId,
       )
       .filter(
         (task) =>
-          query.status === undefined || task.status === query.status,
+          query.status === undefined || query.status.includes(task.status),
       )
       .filter(
         (task) =>
-          query.priority === undefined || task.priority === query.priority,
+          query.priority === undefined ||
+          (task.priority !== null && query.priority.includes(task.priority)),
       )
       .filter(
         (task) =>
           query.assigneeId === undefined ||
           task.assigneeId === query.assigneeId,
+      )
+      .filter(
+        (task) =>
+          query.unassigned === undefined ||
+          (query.unassigned
+            ? task.assigneeId === null
+            : task.assigneeId !== null),
       )
       .sort((a, b) => b.number - a.number);
 

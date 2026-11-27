@@ -31,6 +31,7 @@ export class ProjectsService {
       ...query,
       page: query.page ?? 1,
       limit: query.limit ?? 20,
+      sort: query.sort ?? '-createdAt',
     };
     const result = await this.projectsRepository.list(orgId, pagination);
     const data = result.items.map(toProjectResponse);
