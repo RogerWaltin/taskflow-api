@@ -10,7 +10,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-const TASK_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'] as const;
+const TASK_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as const;
 
 export class CreateTaskDto {
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))

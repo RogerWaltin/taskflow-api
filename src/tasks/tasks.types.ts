@@ -29,7 +29,3 @@ export interface TaskFilters {
   priority?: TaskPriority;
   assigneeId?: string;
 }
-
-export type TaskResponse = Omit<Task, 'organizationId'> & {
-  key: string;
-};

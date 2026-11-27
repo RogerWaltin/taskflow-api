@@ -8,13 +8,14 @@ import {
 
 import { ProjectsService } from '../projects/projects.service.js';
 import { TasksRepository } from './Repositories/tasks.repository.js';
+import { toTaskResponse } from './tasks.mapper.js';
 
+import type { TaskResponseDto } from './dto/task-response.dto.js';
 import type {
   NewTask,
   Task,
   TaskFilters,
   TaskPatch,
-  TaskResponse,
   TaskStatus,
 } from './tasks.types.js';
 
@@ -37,7 +38,7 @@ export class TasksService {
     orgId: string,
     projectId: string,
     data: NewTask,
-  ): Promise<TaskResponse> {
+  ): Promise<TaskResponseDto> {
     const project = await this.projectsService.getProjectForTask(
       orgId,
       projectId,
@@ -84,10 +85,10 @@ export class TasksService {
       throw error;
     }
 
-    return this.toTaskResponse(task, project.key);
+    return toTaskResponse(task, project.key);
   }
 
-  async getTask(orgId: string, taskId: string): Promise<TaskResponse> {
+  async getTask(orgId: string, taskId: string): Promise<TaskResponseDto> {
     const task = this.tasksRepository.findById(orgId, taskId);
 
     if (!task) {
@@ -103,14 +104,14 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    return this.toTaskResponse(task, project.key);
+    return toTaskResponse(task, project.key);
   }
 
   async getProjectTasks(
     orgId: string,
     projectId: string,
     filters: TaskFilters = {},
-  ): Promise<TaskResponse[]> {
+  ): Promise<TaskResponseDto[]> {
     const project = await this.projectsService.getProjectForTask(
       orgId,
       projectId,
@@ -122,14 +123,14 @@ export class TasksService {
 
     const tasks = this.tasksRepository.findByProject(orgId, projectId, filters);
 
-    return tasks.map((task) => this.toTaskResponse(task, project.key));
+    return tasks.map((task) => toTaskResponse(task, project.key));
   }
 
   async updateTask(
     orgId: string,
     taskId: string,
     data: TaskPatch,
-  ): Promise<TaskResponse> {
+  ): Promise<TaskResponseDto> {
     const task = this.tasksRepository.findById(orgId, taskId);
 
     if (!task) {
@@ -194,7 +195,7 @@ export class TasksService {
     );
 
     if (!hasChanges) {
-      return this.toTaskResponse(task, project.key);
+      return toTaskResponse(task, project.key);
     }
 
     const updatedTask = this.tasksRepository.update(orgId, taskId, patch);
@@ -203,7 +204,7 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    return this.toTaskResponse(updatedTask, project.key);
+    return toTaskResponse(updatedTask, project.key);
   }
 
   async deleteTask(orgId: string, taskId: string): Promise<void> {
@@ -231,15 +232,5 @@ export class TasksService {
     if (!deleted) {
       throw new NotFoundException('Task not found');
     }
-  }
-
-  private toTaskResponse(task: Task, projectKey: string): TaskResponse {
-    const { organizationId, ...response } = task;
-    void organizationId;
-
-    return {
-      ...response,
-      key: `${projectKey}-${task.number}`,
-    };
   }
 }

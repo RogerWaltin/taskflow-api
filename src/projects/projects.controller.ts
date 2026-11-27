@@ -17,6 +17,7 @@ import { ProjectsService } from './projects.service.js';
 
 import { CreateProjectDto } from './dto/create-project.dto.js';
 import { ProjectFiltersDto } from './dto/project-filters.dto.js';
+import type { ProjectResponseDto } from './dto/project-response.dto.js';
 import { UpdateProjectDto } from './dto/update-project.dto.js';
 
 @Controller('projects')
@@ -24,7 +25,10 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  fetchProjects(@OrgId() orgId: string, @Query() filters: ProjectFiltersDto) {
+  fetchProjects(
+    @OrgId() orgId: string,
+    @Query() filters: ProjectFiltersDto,
+  ): Promise<ProjectResponseDto[]> {
     return this.projectsService.fetchProjects(orgId, filters);
   }
 
@@ -33,12 +37,15 @@ export class ProjectsController {
     @OrgId() orgId: string,
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     id: string,
-  ) {
+  ): Promise<ProjectResponseDto> {
     return this.projectsService.fetchOne(orgId, id);
   }
 
   @Post()
-  createProject(@OrgId() orgId: string, @Body() payload: CreateProjectDto) {
+  createProject(
+    @OrgId() orgId: string,
+    @Body() payload: CreateProjectDto,
+  ): Promise<ProjectResponseDto> {
     return this.projectsService.createProject(orgId, payload);
   }
 
@@ -48,7 +55,7 @@ export class ProjectsController {
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     id: string,
     @Body() payload: UpdateProjectDto,
-  ) {
+  ): Promise<ProjectResponseDto> {
     return this.projectsService.updateProject(orgId, id, payload);
   }
 

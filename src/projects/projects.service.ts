@@ -4,11 +4,11 @@ import { ProjectsRepository } from './repositories/projects.repository.js';
 import { toProjectResponse } from './projects.mapper.js';
 import { TasksRepository } from '../tasks/Repositories/tasks.repository.js';
 
+import type { ProjectResponseDto } from './dto/project-response.dto.js';
 import type {
   NewProject,
   Project,
   ProjectUpdate,
-  ProjectResponse,
   ProjectStatus,
 } from './projects.types.js';
 
@@ -24,12 +24,12 @@ export class ProjectsService {
   async fetchProjects(
     orgId: string,
     filter: { status?: ProjectStatus } = {},
-  ): Promise<ProjectResponse[]> {
+  ): Promise<ProjectResponseDto[]> {
     const projects = await this.projectsRepository.list(orgId, filter);
     return projects.map(toProjectResponse);
   }
 
-  async fetchOne(orgId: string, id: string): Promise<ProjectResponse> {
+  async fetchOne(orgId: string, id: string): Promise<ProjectResponseDto> {
     const project = await this.projectsRepository.findById(orgId, id);
 
     if (!project) {
@@ -56,7 +56,7 @@ export class ProjectsService {
   async createProject(
     orgId: string,
     data: NewProject,
-  ): Promise<ProjectResponse> {
+  ): Promise<ProjectResponseDto> {
     const project = await this.projectsRepository.create(orgId, data);
     return toProjectResponse(project);
   }
@@ -65,7 +65,7 @@ export class ProjectsService {
     orgId: string,
     id: string,
     patch: ProjectUpdate,
-  ): Promise<ProjectResponse> {
+  ): Promise<ProjectResponseDto> {
     const project = await this.projectsRepository.update(orgId, id, patch);
 
     if (!project) {

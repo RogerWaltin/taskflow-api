@@ -1,8 +1,9 @@
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from '../src/app.module.js';
+import { configureApp } from '../src/app.setup.js';
 
 describe('Projects BUG-03 (e2e)', () => {
   const orgId = '11111111-1111-4111-8111-111111111111';
@@ -13,12 +14,8 @@ describe('Projects BUG-03 (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-      defaultVersion: '1',
-    });
+    app = moduleFixture.createNestApplication({ bodyParser: false });
+    configureApp(app);
     await app.init();
   });
 
@@ -30,7 +27,7 @@ describe('Projects BUG-03 (e2e)', () => {
     const created = await request(app.getHttpServer())
       .post('/api/v1/projects')
       .set('X-Org-Id', orgId)
-      .send({ key: `BUG03${Date.now()}`, name: 'BUG-03 verification' })
+      .send({ key: 'BUG03', name: 'BUG-03 verification' })
       .expect(201);
 
     const rejected = await request(app.getHttpServer())
@@ -39,7 +36,7 @@ describe('Projects BUG-03 (e2e)', () => {
       .send({ nextTaskNumber: 50 })
       .expect(400);
 
-    expect(rejected.body.message).toContain('nextTaskNumber');
+    expect(JSON.stringify(rejected.body.message)).toContain('nextTaskNumber');
 
     const updated = await request(app.getHttpServer())
       .patch(`/api/v1/projects/${created.body.id}`)

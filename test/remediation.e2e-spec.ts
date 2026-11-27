@@ -1,8 +1,9 @@
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from '../src/app.module.js';
+import { configureApp } from '../src/app.setup.js';
 
 describe('Phase 1 bug remediation (e2e)', () => {
   const orgA = '33333333-3333-4333-8333-333333333333';
@@ -46,12 +47,8 @@ describe('Phase 1 bug remediation (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-      defaultVersion: '1',
-    });
+    app = moduleFixture.createNestApplication({ bodyParser: false });
+    configureApp(app);
     await app.init();
   });
 
@@ -64,11 +61,11 @@ describe('Phase 1 bug remediation (e2e)', () => {
     const valid = await api()
       .post('/api/v1/projects')
       .set('X-Org-Id', orgA)
-      .send({ key: 'VALID01', name: 'Valid project', description: 'Details' })
+      .send({ key: 'VAL01', name: 'Valid project', description: 'Details' })
       .expect(201);
 
     expect(valid.body).toMatchObject({
-      key: 'VALID01',
+      key: 'VAL01',
       name: 'Valid project',
       description: 'Details',
       status: 'ACTIVE',
@@ -104,9 +101,15 @@ describe('Phase 1 bug remediation (e2e)', () => {
   });
 
   it('rejects invalid PATCH bodies but preserves BUG-03 field separation', async () => {
-    const project = await createProject(orgA, 'PATCH01');
+    const project = await createProject(orgA, 'PCH01');
 
-    for (const body of [{}, { key: 'CHANGED' }, { nextTaskNumber: 50 }, []]) {
+    for (const body of [
+      {},
+      { key: 'CHANGED' },
+      { name: null },
+      { nextTaskNumber: 50 },
+      [],
+    ]) {
       await api()
         .patch(`/api/v1/projects/${project.id}`)
         .set('X-Org-Id', orgA)
@@ -133,24 +136,24 @@ describe('Phase 1 bug remediation (e2e)', () => {
       .set('X-Org-Id', orgA)
       .send({ name: 'Renamed' })
       .expect(200);
-    expect(valid.body).toMatchObject({ id: project.id, key: 'PATCH01', name: 'Renamed' });
+    expect(valid.body).toMatchObject({ id: project.id, key: 'PCH01', name: 'Renamed' });
     expect(valid.body).not.toHaveProperty('nextTaskNumber');
 
     const first = await createTask(orgA, project.id, { title: 'One' });
     const second = await createTask(orgA, project.id, { title: 'Two' });
-    expect(first.body).toMatchObject({ number: 1, key: 'PATCH01-1' });
-    expect(second.body).toMatchObject({ number: 2, key: 'PATCH01-2' });
+    expect(first.body).toMatchObject({ number: 1, key: 'PCH01-1' });
+    expect(second.body).toMatchObject({ number: 2, key: 'PCH01-2' });
   });
 
   // ---------------------------------------------------------------- BUG-02
   it('returns 404 for missing, foreign and deleted projects on GET and PATCH', async () => {
-    const project = await createProject(orgA, 'FIND01');
+    const project = await createProject(orgA, 'FIND1');
 
     const existing = await api()
       .get(`/api/v1/projects/${project.id}`)
       .set('X-Org-Id', orgA)
       .expect(200);
-    expect(existing.body).toMatchObject({ id: project.id, key: 'FIND01' });
+    expect(existing.body).toMatchObject({ id: project.id, key: 'FIND1' });
 
     for (const [id, org] of [
       [otherId, orgA],
@@ -191,7 +194,7 @@ describe('Phase 1 bug remediation (e2e)', () => {
 
   // ---------------------------------------------------------------- BUG-04
   it('changes updatedAt only for real project changes', async () => {
-    const created = await createProject(orgA, 'TIME01');
+    const created = await createProject(orgA, 'TIME1');
     await api()
       .patch(`/api/v1/projects/${created.id}`)
       .set('X-Org-Id', orgA)
@@ -218,7 +221,7 @@ describe('Phase 1 bug remediation (e2e)', () => {
     const noOp = await api()
       .patch(`/api/v1/projects/${created.id}`)
       .set('X-Org-Id', orgA)
-      .send({ name: 'TIME01', description: 'Original description', status: 'ACTIVE' })
+      .send({ name: 'TIME1', description: 'Original description', status: 'ACTIVE' })
       .expect(200);
     expect(noOp.body.updatedAt).toBe(initialTime);
 
@@ -242,7 +245,7 @@ describe('Phase 1 bug remediation (e2e)', () => {
     // The internal counter update driven by task creation still works.
     const task = await createTask(orgA, created.id, { title: 'Counter probe' })
       .expect(201);
-    expect(task.body).toMatchObject({ number: 1, key: 'TIME01-1' });
+    expect(task.body).toMatchObject({ number: 1, key: 'TIME1-1' });
 
     const archived = await api()
       .patch(`/api/v1/projects/${created.id}`)
@@ -254,8 +257,8 @@ describe('Phase 1 bug remediation (e2e)', () => {
 
   // ---------------------------------------------------------------- BUG-05
   it('validates the project status filter and keeps valid filtering working', async () => {
-    const active = await createProject(orgA, 'FILTERA');
-    const archived = await createProject(orgA, 'FILTERB');
+    const active = await createProject(orgA, 'FLTA1');
+    const archived = await createProject(orgA, 'FLTB1');
     await api()
       .patch(`/api/v1/projects/${archived.id}`)
       .set('X-Org-Id', orgA)
@@ -282,19 +285,23 @@ describe('Phase 1 bug remediation (e2e)', () => {
         .get(`/api/v1/projects?status=${value}`)
         .set('X-Org-Id', orgA)
         .expect(400);
-      expect(response.body.message).toBe('Invalid project status filter');
+      expect(JSON.stringify(response.body.message)).toContain(
+        'status must be one of the following values',
+      );
     }
   });
 
   // ---------------------------------------------------------------- BUG-06
   it('rejects unsupported task-list query keys while keeping supported filters', async () => {
-    const project = await createProject(orgA, 'TASKQ01');
+    const project = await createProject(orgA, 'TSKQ1');
     const task = await createTask(orgA, project.id, {
       title: 'Filter target',
       priority: 'URGENT',
-      assigneeId: 'qa-user-a',
+      assigneeId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     });
     expect(task.status).toBe(201);
+    expect(task.body).not.toHaveProperty('organizationId');
+    expect(task.body).not.toHaveProperty('nextTaskNumber');
 
     await api()
       .get(`/api/v1/projects/${project.id}/tasks`)
@@ -305,8 +312,8 @@ describe('Phase 1 bug remediation (e2e)', () => {
     for (const query of [
       '?status=TODO',
       '?priority=URGENT',
-      '?assigneeId=qa-user-a',
-      '?status=TODO&priority=URGENT&assigneeId=qa-user-a',
+      '?assigneeId=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      '?status=TODO&priority=URGENT&assigneeId=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     ]) {
       await api()
         .get(`/api/v1/projects/${project.id}/tasks${query}`)
@@ -339,7 +346,7 @@ describe('Phase 1 bug remediation (e2e)', () => {
 
   // ---------------------------------------------------------------- EP-02
   it('returns a usable Location header on successful task creation only', async () => {
-    const project = await createProject(orgA, 'LOCAT01');
+    const project = await createProject(orgA, 'LOC01');
 
     const task = await createTask(orgA, project.id, { title: 'Located task' })
       .expect(201)
@@ -351,7 +358,7 @@ describe('Phase 1 bug remediation (e2e)', () => {
       .set('X-Org-Id', orgA)
       .expect(200);
     expect(followed.body.id).toBe(task.body.id);
-    expect(followed.body.key).toBe('LOCAT01-1');
+    expect(followed.body.key).toBe('LOC01-1');
 
     const failed = await createTask(orgA, otherId, { title: 'No project' }).expect(404);
     expect(failed.headers.location).toBeUndefined();
@@ -359,14 +366,20 @@ describe('Phase 1 bug remediation (e2e)', () => {
 
   // ---------------------------------------------------------------- BUG-08
   it('preserves omitted task fields on PATCH', async () => {
-    const project = await createProject(orgA, 'PATCHT01');
+    const project = await createProject(orgA, 'PTCH1');
     const created = await createTask(orgA, project.id, {
       title: 'Original title',
       description: 'Keep description',
       priority: 'HIGH',
-      assigneeId: 'qa-user-b',
-      dueDate: '2026-12-31',
+      assigneeId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      dueDate: '2026-12-31T00:00:00Z',
     }).expect(201);
+
+    await api()
+      .patch(`/api/v1/tasks/${created.body.id}`)
+      .set('X-Org-Id', orgA)
+      .send({ title: null })
+      .expect(400);
 
     const patched = await api()
       .patch(`/api/v1/tasks/${created.body.id}`)
@@ -378,8 +391,8 @@ describe('Phase 1 bug remediation (e2e)', () => {
       description: 'Keep description',
       status: 'TODO',
       priority: 'HIGH',
-      assigneeId: 'qa-user-b',
-      dueDate: '2026-12-31',
+      assigneeId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      dueDate: '2026-12-31T00:00:00Z',
     });
 
     const cleared = await api()

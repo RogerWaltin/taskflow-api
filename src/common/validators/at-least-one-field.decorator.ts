@@ -10,7 +10,7 @@ import {
 class AtLeastOneFieldConstraint implements ValidatorConstraintInterface {
   validate(_value: unknown, args: ValidationArguments): boolean {
     const object = args.object as Record<string, unknown>;
-    const fields = args.constraints as string[];
+    const [fields] = args.constraints as [string[]];
 
     // Prevent clients from supplying the internal validation property.
     if (Object.hasOwn(object, '__atLeastOneField')) {

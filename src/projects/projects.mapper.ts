@@ -1,6 +1,7 @@
-import type { Project, ProjectResponse } from './projects.types.js';
+import type { ProjectResponseDto } from './dto/project-response.dto.js';
+import type { Project } from './projects.types.js';
 
-export function toProjectResponse(project: Project): ProjectResponse {
+export function toProjectResponse(project: Project): ProjectResponseDto {
   return {
     id: project.id,
     key: project.key,

@@ -19,6 +19,7 @@ import { TasksService } from './tasks.service.js';
 
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { TaskFiltersDto } from './dto/task-filters.dto.js';
+import type { TaskResponseDto } from './dto/task-response.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 
 @Controller()
@@ -32,7 +33,7 @@ export class TasksController {
     projectId: string,
     @Body() payload: CreateTaskDto,
     @Res({ passthrough: true }) response: Response,
-  ) {
+  ): Promise<TaskResponseDto> {
     const task = await this.tasksService.createTask(orgId, projectId, payload);
 
     response.setHeader('Location', `/api/v1/tasks/${task.id}`);
@@ -45,7 +46,7 @@ export class TasksController {
     @Param('projectId', new ParseUUIDPipe({ version: '4' }))
     projectId: string,
     @Query() filters: TaskFiltersDto,
-  ) {
+  ): Promise<TaskResponseDto[]> {
     return this.tasksService.getProjectTasks(orgId, projectId, filters);
   }
 
@@ -54,7 +55,7 @@ export class TasksController {
     @OrgId() orgId: string,
     @Param('taskId', new ParseUUIDPipe({ version: '4' }))
     taskId: string,
-  ) {
+  ): Promise<TaskResponseDto> {
     return this.tasksService.getTask(orgId, taskId);
   }
 
@@ -64,7 +65,7 @@ export class TasksController {
     @Param('taskId', new ParseUUIDPipe({ version: '4' }))
     taskId: string,
     @Body() payload: UpdateTaskDto,
-  ) {
+  ): Promise<TaskResponseDto> {
     return this.tasksService.updateTask(orgId, taskId, payload);
   }
 
